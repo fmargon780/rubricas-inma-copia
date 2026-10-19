@@ -53,7 +53,7 @@
     delete n.situacion; if (sid) n.situacion = sid;
     if (r) {
       var c = copia(r); c.id = R.nuevoId('r'); c.actividad = n.id; delete c.plantilla;
-      c.filas.forEach(function (f) { f.id = R.nuevoId('f'); });
+      c.filas.forEach(function (f) { f.id = R.nuevoId('f'); if (f.criterio && n.criterios.indexOf(f.criterio) < 0) delete f.criterio; });
       await destino.escribirJSON('rubricas/' + n.id + '.json', c);
     }
     await destino.escribirJSON('actividades/' + n.id + '.json', n);

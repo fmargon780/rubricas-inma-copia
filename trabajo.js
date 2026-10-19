@@ -19,6 +19,7 @@
   function plantillas(carpeta) { return leerTodos(carpeta, 'rubricas', function (r) { return r.plantilla === true; }); }
   function guardarPlantilla(carpeta, r, nombre) {
     var p = JSON.parse(JSON.stringify(r));
+    p.filas.forEach(function (f) { delete f.criterio; });
     p.plantilla = true; p.actividad = null; p.nombre = nombre; p.id = 'plantilla-' + r.id;
     return carpeta.escribirJSON('rubricas/' + p.id + '.json', p).then(function () { return p; });
   }

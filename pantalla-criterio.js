@@ -48,6 +48,12 @@
     caja.appendChild(h('p', { class: 'codigo', texto: est.criterio.codigo }));
     caja.appendChild(h('p', { id: 'usoActividades', texto: 'Actividades que lo evalúan en el ' + TRIMESTRES[est.trimestre - 1] + ': ' + uso.actividades }));
     caja.appendChild(h('p', { id: 'usoRubricas', texto: 'Rúbricas guardadas: ' + uso.rubricas }));
+    /* Las actividades que lo evalúan, también las creadas en otra área (marcadas «de …»); se abren enteras. */
+    var propias = (await g.Trabajo.actividades(est.carpeta)).filter(function (a) { return Array.isArray(a.criterios) && a.criterios.indexOf(est.criterio.id) >= 0 && Number(a.trimestre) === Number(est.trimestre); });
+    if (propias.length) caja.appendChild(h('div', { class: 'lista', id: 'usoLista' }, propias.map(function (a) {
+      var otra = a.area && a.area !== est.areaCrit ? C.areas().filter(function (x) { return x.id === a.area; })[0] : null;
+      return h('button', { type: 'button', class: 'boton', 'data-actividad-uso': a.id, texto: (a.titulo || '(sin título)') + (otra ? ' (de ' + otra.nombre + ')' : ''), onclick: function () { est.actividad = a; est.enlace = null; est.paso = 'actividad'; refrescar(); } });
+    })));
     if (!uso.actividades) caja.appendChild(h('div', { class: 'aviso', id: 'avisoSinEvaluar', texto: 'Este criterio se queda sin evaluar en el ' + TRIMESTRES[est.trimestre - 1] + '.' }));
     caja.appendChild(h('button', { type: 'button', class: 'boton principal', id: 'crearActividad', texto: 'Crear actividad para este criterio', onclick: function () { est.actividad = null; est.enlace = null; est.paso = 'actividad'; refrescar(); } }));
     return caja;

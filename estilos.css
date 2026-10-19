@@ -105,3 +105,15 @@ a.boton { text-decoration: none; display: inline-block; font: inherit; border: 1
 .marcar-areas { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; }
 .marcar-areas label { display: inline-flex; align-items: center; gap: 4px; }
 .curso-nuevo { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+/* Fila 23: varios criterios por actividad. */
+.criterio-act { display: flex; gap: 6px; align-items: center; padding: 3px 0; }
+.criterio-act button { margin-left: auto; }
+.rubrica tr.grupo-criterio td, .rubrica tr.grupo-vacio td { background: var(--verde-claro); padding: 6px 8px; }
+.rubrica tr.grupo-criterio button { margin-left: 12px; }
+.rubrica select.selCriterioFila { width: 100%; margin-bottom: 2px; font: inherit; }
+.calificar th.critgrupo { background: var(--verde-claro); font-weight: 600; text-align: left; }
+.calificar th.nota { min-width: 60px; text-align: center; }
+table.listado-seneca { border-collapse: collapse; background: #fff; }
+.listado-seneca th, .listado-seneca td { border: 1px solid var(--linea); padding: 4px 8px; }
+.listado-seneca th span { display: block; margin-bottom: 2px; }
+.listado-seneca td.nota { text-align: center; }
