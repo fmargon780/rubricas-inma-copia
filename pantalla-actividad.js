@@ -2,7 +2,7 @@
    y marca los criterios que evalúa. Al guardar pasa a la rúbrica. */
 (function (g) {
   'use strict';
-  var C = g.Criterios, R = g.Rubrica, T = g.Trabajo, Dm = g.Dom, h = Dm.h, PC = g.PantallaClaude;
+  var C = g.Criterios, R = g.Rubrica, T = g.Trabajo, Dm = g.Dom, h = Dm.h, PC = g.PantallaClaude, PT = g.PantallaTraer;
   var MAX_SESIONES = 12;
 
   function criteriosDelArea(est) {
@@ -20,7 +20,8 @@
   async function pintarActividad(est, refrescar) {
     var previas = (await T.actividades(est.carpeta)).filter(function (a) { return !est.criterio || a.criterios.indexOf(est.criterio.id) >= 0; });
     var a = est.actividad ? JSON.parse(JSON.stringify(est.actividad)) : borrador(est);
-    var aviso = Dm.aviso();
+    var aviso = Dm.aviso(), traido = PT.aviso(est);
+    var traer = est.actividad ? null : PT.boton(est, 'actividad', refrescar, await PT.disponibles(est, 'actividad'));
     var todos = criteriosDelArea(est);
     var conocidos = {};
     todos.forEach(function (k) { conocidos[k.id] = k; });
@@ -93,6 +94,7 @@
     Dm.montar([h('div', { class: 'dos' }, [
       h('div', { class: 'tarjeta', id: 'panelActividad' }, [
         h('h2', { texto: est.actividad ? 'Actividad' : 'Crear actividad' }),
+        PT.etiqueta(a), traido, traer,
         cabecera ? h('p', { class: 'suave', texto: cabecera }) : null,
         ayuda,
         h('label', { class: 'campo' }, ['Título', titulo]),

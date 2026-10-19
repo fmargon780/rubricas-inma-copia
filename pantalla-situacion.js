@@ -3,7 +3,7 @@
    A Claude solo van el reto, el curso, las áreas y los criterios oficiales; nunca nombres de alumnos. */
 (function (g) {
   'use strict';
-  var C = g.Criterios, S = g.Situacion, Cl = g.Claude, PC = g.PantallaClaude, Dm = g.Dom, h = Dm.h;
+  var C = g.Criterios, S = g.Situacion, Cl = g.Claude, PC = g.PantallaClaude, Dm = g.Dom, h = Dm.h, PT = g.PantallaTraer;
 
   function campoTexto(s, clave, etiqueta, id, tipo) {
     var i = h(tipo === 'area' ? 'textarea' : 'input', tipo === 'area' ? { id: id } : { id: id, type: tipo || 'text' });
@@ -30,6 +30,7 @@
     var cat = S.catalogo(grupo, C), porId = {};
     cat.criterios.forEach(function (k) { porId[k.id] = k; });
     var estados = await S.estados(est.carpeta, s);
+    var traido = PT.aviso(est), traer = est.situacionNueva ? PT.boton(est, 'situacion', refrescar, await PT.disponibles(est, 'situacion')) : null;
     var repintar = function () { return pintarSituacion(est, refrescar); };
     var guardar = async function () {
       if (!s.titulo.trim()) throw new Error('Escribe el título de la situación.');
@@ -129,6 +130,7 @@
         selector('Grupo', 'sitGrupo', est.grupos.map(function (x) { return { valor: x.id, texto: x.nombre }; }), s.grupo, function (v) { s.grupo = v; repintar(); }),
         selector('Trimestre', 'sitTrimestre', S.TRIMESTRES.map(function (t, i) { return { valor: i + 1, texto: t }; }), s.trimestre, function (v) { s.trimestre = Number(v); })
       ]),
+      PT.etiqueta(s), traido, traer,
       caja,
       campoTexto(s, 'titulo', 'Título', 'sitTitulo'),
       h('div', { class: 'barra' }, [campoTexto(s, 'semanas', 'Semanas', 'sitSemanas', 'number'), campoTexto(s, 'sesiones', 'Sesiones en total', 'sitSesiones', 'number')]),
