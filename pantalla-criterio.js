@@ -1,5 +1,5 @@
 /* Paso 2 · Criterio: Inma elige área, curso y trimestre, ve las competencias específicas con sus criterios oficiales y marca uno.
-   A la derecha, cuánto se usa ese criterio en su clase. Y un paso 3 provisional hasta la fila 3. Textos siempre con textContent. */
+   A la derecha, cuánto se usa ese criterio en su clase. Textos siempre con textContent. */
 (function (g) {
   'use strict';
   var C = g.Criterios, D = g.Datos;
@@ -49,7 +49,7 @@
     caja.appendChild(h('p', { id: 'usoActividades', texto: 'Actividades que lo evalúan en el ' + TRIMESTRES[est.trimestre - 1] + ': ' + uso.actividades }));
     caja.appendChild(h('p', { id: 'usoRubricas', texto: 'Rúbricas guardadas: ' + uso.rubricas }));
     if (!uso.actividades) caja.appendChild(h('div', { class: 'aviso', id: 'avisoSinEvaluar', texto: 'Este criterio se queda sin evaluar en el ' + TRIMESTRES[est.trimestre - 1] + '.' }));
-    caja.appendChild(h('button', { type: 'button', class: 'boton principal', id: 'crearActividad', texto: 'Crear actividad para este criterio', onclick: function () { est.paso = 'actividad'; refrescar(); } }));
+    caja.appendChild(h('button', { type: 'button', class: 'boton principal', id: 'crearActividad', texto: 'Crear actividad para este criterio', onclick: function () { est.actividad = null; est.enlace = null; est.paso = 'actividad'; refrescar(); } }));
     return caja;
   }
 
@@ -78,14 +78,5 @@
     ])]);
   }
 
-  function pintarActividad(est, refrescar) {
-    montar([h('div', { class: 'vacio', id: 'panelActividad' }, [
-      h('h2', { texto: 'Crear actividad' }),
-      h('p', { texto: est.criterio ? 'Criterio ' + est.criterio.codigo + ': ' + est.criterio.texto : 'Aún no has marcado ningún criterio.' }),
-      h('p', { class: 'suave', texto: 'Aquí podrás crear la actividad y su rúbrica a mano. Llega en la próxima versión.' }),
-      h('button', { type: 'button', class: 'boton', texto: 'Volver a los criterios', onclick: function () { est.paso = 'criterio'; refrescar(); } })
-    ])]);
-  }
-
-  g.PantallaCriterio = { pintarCriterio: pintarCriterio, pintarActividad: pintarActividad };
+  g.PantallaCriterio = { pintarCriterio: pintarCriterio };
 })(window);

@@ -9,20 +9,30 @@
     var carpeta = window.Carpeta.adaptador(handle);
     $('estadoCarpeta').textContent = 'Carpeta: ' + handle.name;
     var base = await window.Datos.iniciar(carpeta);
-    var est = { carpeta: carpeta, grupos: base.grupos, cuenta: {}, grupo: null, area: null, paso: 'grupos', criterio: null };
+    var est = { carpeta: carpeta, config: base.config, grupos: base.grupos, actividad: null, rubrica: null, cuenta: {}, grupo: null, area: null, paso: 'grupos', criterio: null };
     var refrescar = async function () {
       var p = est.paso;
-      $('pasoGrupos').classList.toggle('activo', p === 'grupos');
-      $('pasoCriterio').classList.toggle('activo', p === 'criterio');
-      $('pasoActividad').classList.toggle('activo', p === 'actividad');
-      $('pasoActividad').disabled = p !== 'actividad';
+      ['grupos', 'situacion', 'criterio', 'actividad', 'rubrica', 'calificar', 'ajustes'].forEach(function (x) { $('paso' + x.charAt(0).toUpperCase() + x.slice(1)).classList.toggle('activo', p === x); });
+      $('pasoActividad').disabled = !(est.criterio || est.actividad);
+      $('pasoRubrica').disabled = !est.actividad;
+      $('pasoCalificar').disabled = !est.actividad;
+      if (p === 'situacion') { await window.PantallaSituacion.pintarSituacion(est, refrescar); return; }
       if (p === 'criterio') { await window.PantallaCriterio.pintarCriterio(est, refrescar); return; }
-      if (p === 'actividad') { window.PantallaCriterio.pintarActividad(est, refrescar); return; }
+      if (p === 'actividad') { await window.PantallaActividad.pintarActividad(est, refrescar); return; }
+      if (p === 'rubrica') { await window.PantallaRubrica.pintarRubrica(est, refrescar); return; }
+      if (p === 'ajustes') { await window.PantallaClaude.pintarAjustes(est, refrescar); return; }
+      if (p === 'calificar') { await window.PantallaCalificar.pintarCalificar(est, refrescar); return; }
       est.cuenta = await window.Datos.contarAlumnos(carpeta, est.grupos);
       window.Pantalla.pintarGrupos(est, refrescar);
     };
-    $('pasoGrupos').onclick = function () { est.paso = 'grupos'; refrescar(); };
-    $('pasoCriterio').onclick = function () { est.paso = 'criterio'; refrescar(); };
+    var ir = function (paso) { return function () { est.paso = paso; refrescar(); }; };
+    $('pasoGrupos').onclick = ir('grupos');
+    $('pasoSituacion').onclick = ir('situacion');
+    $('pasoCriterio').onclick = function () { est.enlace = null; est.paso = 'criterio'; refrescar(); };
+    $('pasoActividad').onclick = ir('actividad');
+    $('pasoRubrica').onclick = ir('rubrica');
+    $('pasoCalificar').onclick = ir('calificar');
+    $('pasoAjustes').onclick = ir('ajustes');
     await window.Criterios.cargar();
     await refrescar();
   }

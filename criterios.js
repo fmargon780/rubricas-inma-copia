@@ -56,6 +56,12 @@
     });
     return out;
   }
+  /* Un criterio por su id («area:código») para un curso, o null. */
+  function buscar(id, curso) {
+    var areaId = String(id).split(':')[0], r = null;
+    competencias(areaId, curso).forEach(function (c) { c.criterios.forEach(function (k) { if (k.id === id) r = k; }); });
+    return r;
+  }
   function fuente(areaId) { var d = docs.filter(function (x) { return x.areaId === areaId; })[0]; return d ? d.fuente : null; }
 
   function cargarScript(ruta) {
@@ -73,6 +79,6 @@
     return lista.length;
   }
 
-  var api = { registrar: registrar, vaciar: vaciar, validar: validar, areas: areas, cursos: cursos, competencias: competencias, fuente: fuente, cargar: cargar };
+  var api = { registrar: registrar, vaciar: vaciar, validar: validar, areas: areas, cursos: cursos, competencias: competencias, buscar: buscar, fuente: fuente, cargar: cargar };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Criterios = api;
 })(typeof window !== 'undefined' ? window : globalThis);

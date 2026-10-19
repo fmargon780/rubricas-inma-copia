@@ -53,3 +53,48 @@ select { font: inherit; border: 1px solid var(--linea); border-radius: 6px; padd
 .lateral p { margin: 0; }
 .suave { color: var(--suave); font-size: 13px; }
 @media (max-width: 800px) { .dos { grid-template-columns: 1fr; } }
+/* Fila 3: actividad, rúbrica y calificar. Los cinco niveles van de rojo suave a verde oscuro y de más claro a más oscuro (se distinguen también sin color). */
+:root { --n0: #f6d5d0; --n1: #f3d9a8; --n2: #dfe3a0; --n3: #a9d3a4; --n4: #5fa882; }
+.n0 { background: var(--n0); } .n1 { background: var(--n1); } .n2 { background: var(--n2); } .n3 { background: var(--n3); } .n4 { background: var(--n4); }
+.titulo-paso { margin: 0 0 8px; font-size: 18px; }
+.tabla-ancha { overflow-x: auto; margin-bottom: 8px; }
+table.rubrica, table.calificar { border-collapse: collapse; width: 100%; background: #fff; }
+.rubrica th, .rubrica td, .calificar th, .calificar td { border: 1px solid var(--linea); padding: 4px; vertical-align: top; }
+.rubrica th.nivel { text-align: center; font-weight: 600; } .rubrica th.nivel span { display: block; }
+.rubrica th.nivel input.valor { width: 64px; margin-top: 2px; text-align: center; }
+.rubrica textarea { width: 100%; min-height: 84px; resize: vertical; border: 1px solid transparent; background: transparent; }
+.rubrica td.nivel textarea:focus, .rubrica td.quemira textarea:focus { border-color: var(--verde); background: #fff; }
+.rubrica .quemira { min-width: 150px; } .rubrica .peso { width: 70px; } .rubrica input.pesoFila { width: 56px; }
+.acciones { white-space: nowrap; width: 1%; }
+button.mini { font: inherit; min-width: 32px; min-height: 32px; border: 1px solid var(--linea); background: #fff; border-radius: 6px; cursor: pointer; }
+.calificar th.alumno { text-align: left; white-space: nowrap; font-weight: 500; background: #fff; }
+.calificar th.colfila { min-width: 230px; font-weight: 500; text-align: left; }
+.niveles { display: flex; gap: 2px; }
+button.nivelBtn { flex: 1; min-width: 44px; min-height: 44px; font: inherit; font-size: 12px; border: 2px solid transparent; border-radius: 6px; cursor: pointer; color: var(--tinta); }
+button.nivelBtn.puesto { border-color: var(--tinta); font-weight: 800; box-shadow: inset 0 0 0 2px #fff; }
+button.nivelBtn.puesto::before { content: "✓ "; }
+.calificar td.nota { text-align: center; font-weight: 700; font-size: 17px; min-width: 60px; }
+.casilla { display: flex; gap: 6px; align-items: baseline; padding: 3px 0; }
+.criterios-lista { display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; border: 1px solid var(--linea); border-radius: 6px; padding: 4px 8px; }
+.pasos-sesion { display: flex; flex-direction: column; gap: 6px; }
+.lista { display: flex; flex-direction: column; gap: 4px; }
+a.boton { text-decoration: none; display: inline-block; font: inherit; border: 1px solid var(--verde); background: #fff; color: var(--verde); border-radius: 6px; padding: 5px 12px; }
+/* Fila 4: Claude. */
+.caja-ia { border: 1px solid var(--verde); background: var(--verde-claro); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.caja-ia h3 { margin: 0; font-size: 15px; }
+.caja-ia textarea { min-height: 64px; }
+.etiqueta-ia { display: inline-block; align-self: flex-start; margin: 0; padding: 2px 8px; border-radius: 12px; background: var(--ambar); border: 1px solid #e0b34a; font-size: 13px; font-weight: 600; }
+.propuesta-ia { display: flex; flex-direction: column; gap: 6px; }
+.ajustes { max-width: 560px; margin: 0 auto; }
+/* Fila 5: Situaciones de Aprendizaje. */
+.criterio-sit { display: flex; gap: 6px; align-items: center; background: var(--fondo); border: 1px solid var(--linea); border-radius: 6px; padding: 4px 8px; margin-bottom: 4px; }
+.criterio-sit button { margin-left: auto; min-height: 44px; min-width: 44px; }
+.actividad-sit { display: grid; grid-template-columns: 24px minmax(0, 2fr) minmax(0, 1.2fr) 72px minmax(0, 1fr) auto auto 44px; gap: 6px; align-items: end; margin-bottom: 6px; }
+.actividad-sit button { min-height: 44px; }
+.estado-rubrica { font-size: 12px; border-radius: 12px; padding: 2px 8px; border: 1px solid var(--linea); white-space: nowrap; align-self: center; }
+.estado-rubrica.lista { background: var(--verde-claro); border-color: var(--verde); }
+.estado-rubrica.pendiente, .estado-rubrica.sin-crear { background: var(--ambar); border-color: #e0b34a; }
+.apartado-seneca { margin: 8px 0; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.apartado-seneca h4 { margin: 0; }
+.apartado-seneca textarea { min-height: 60px; }
+@media (max-width: 800px) { .actividad-sit { grid-template-columns: 1fr 1fr; } }
