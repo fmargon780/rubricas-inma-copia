@@ -1,13 +1,13 @@
 {
-  "version": "rúbricas v5",
-  "commit": "1e1e463",
+  "version": "rúbricas v7",
+  "commit": "c4b7b53",
   "ficheros": {
     "ABRIR MIS RUBRICAS.html": "9b1039f2b2631b4a13139086e3b067ca0485244db74a7f790da3b6389663098e",
     "actualizar-copia.js": "86cb7d87ff04bee055d85c3ab07100ffb364282c5bee1da3279d2477bac2cb96",
-    "arranque.js": "a8a4b10757b54f0fe784533b6564dc3d2dbf0218ef861fabc92e1dbd15738ec4",
+    "arranque.js": "bd7ebe11509443d5c3798ad4f9f73a2f9913d6f6770dfd41f2e979fe2b0320d5",
     "carpeta.js": "256254009f6340bdd0322d894cec2df09d8f58e0ce901dff922df1b94c8d0bb0",
     "claude.js": "a0b23ba7aa9ae4ceca3b1e7f4313b70536748b0eb7173c7ba43204da4c6e0906",
-    "commit.js": "4c7e0d267efd13361a40be3f34e7d2143bbf1a403a4524cd20c3dceb49a5edff",
+    "commit.js": "99b33d57d9290f509d7691640b06b8f67b3c59b8424ae771d3786d5ac7dd957d",
     "criterios.js": "304b44219cc3e09e6b5bd2b36441db678b991c9f61546c2fc71ce682b99fa1fd",
     "criterios/educacion-artistica-ciclo2.js": "92f17ef4095e12495cfc500fe642ad9e16286f063616e62359a51e4d3d3bf398",
     "criterios/indice.js": "2d0945c007c0c9f66b85ad80b1944316eb30debf66f7c12aa4b34526bcce4dd6",
@@ -18,7 +18,8 @@
     "estilos.css": "24b3a4f080560dd46e7ceaebdaa71fa955024f34538533653bb77c9bfb919d2b",
     "figtree-LICENSE.txt": "ee23e6c84000126692e112ff067b456470493349f993ceaa8b4d3766dd6fad5d",
     "figtree.woff2": "4ba7d3d096695818fe0686be4f1e82c6b05134e18a22260336130335027462dd",
-    "index.html": "a3c02e055cc57081c1ec4e9e30393e7e953b0feffb6fd0c9ff316183c2606be0",
+    "index.html": "c743446507301b2b1085c51ab11da9b1432bd74e2846d8d4b4175bbbb4ca96ae",
+    "instalable.js": "847b93440908bbebc0c41ebf5102249c6f3b751afd9343f1b939d9f3667ada23",
     "pantalla-actividad.js": "eac1a58010e87222d76a0b927e1dc8418fceb11774626ffea3cf3712957a7d2c",
     "pantalla-calificar.js": "07c207792b6db0c3b87d9e97b37873e55ab517dec7d6cde2ab58a99f899a7672",
     "pantalla-claude.js": "14f7ab29f0ba8782670fbf0ba458b5122520ad66608b727060fa9efee4a428ef",
@@ -30,6 +31,6 @@
     "seneca.js": "b4da9a2cce1b5fee88021aa71a662af9de95910ea1bf737d1074fed8b2eae001",
     "situacion.js": "d49e6e102e7341b74537bdda14ad2f8dca30e1b5f424869cae531b305a5b5b20",
     "trabajo.js": "a2ab0a137d24ec68ade3c861e8516683ddfdc31c482056f4f86d320a87db12b4",
-    "version.js": "42a356ebebc344bd72bb113fae15ecea7019ccf89fb56005acf26cd435b0014f"
+    "version.js": "5d4be39a1148f429877f88c7960fa986004dc453aaf922c73a813846ffae456e"
   }
 }

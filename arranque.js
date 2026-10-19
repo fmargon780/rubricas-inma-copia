@@ -2,8 +2,8 @@
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var DESDE_DISCO = location.protocol === 'file:';
-  $('versionPagina').textContent = window.VERSION_PAGINA + ' · ' + (window.COMMIT_PAGINA || 'sin-marca') + (DESDE_DISCO ? ' · copia sin internet' : '');
+  var MODO = window.modoApp ? window.modoApp() : 'página web';
+  $('versionPagina').textContent = window.VERSION_PAGINA + ' · ' + (window.COMMIT_PAGINA || 'sin-marca') + ' · ' + MODO;
 
   async function abrir(handle) {
     var carpeta = window.Carpeta.adaptador(handle);
