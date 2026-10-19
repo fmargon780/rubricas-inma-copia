@@ -20,7 +20,9 @@
   function copiar(texto) { try { return navigator.clipboard.writeText(texto); } catch (e) { return Promise.resolve(); } }
 
   async function pintarSituacion(est, refrescar) {
-    var lista = await S.todas(est.carpeta);
+    var lista = await S.todas(est.carpeta), soloVer = est.editable === false;
+    if (soloVer && !est.situacion) est.situacion = lista[0] || null;
+    if (soloVer && !est.situacion) { Dm.montar([h('div', { class: 'vacio' }, [h('p', { id: 'sinSituaciones', texto: 'En este curso no hay ninguna situación.' })])]); return; }
     if (!est.situacion) { var gr0 = est.grupos.filter(function (x) { return x.id === est.grupo; })[0] || est.grupos[0]; est.situacion = S.nueva(gr0 ? gr0.id : '', est.trimestre || 1); est.situacionNueva = true; }
     var s = est.situacion;
     var aviso = Dm.aviso(), estado = h('p', { class: 'suave', id: 'sitEstado' }), avisoIA = h('div', { class: 'aviso', id: 'sitDescartados', hidden: '' });
@@ -96,9 +98,9 @@
       return h('div', { class: 'actividad-sit', 'data-n': String(n) }, [
         h('span', { class: 'numero', texto: String(n + 1) }), t, area, ses, crit,
         h('span', { class: 'estado-rubrica ' + estados[n], texto: S.ETIQUETA_ESTADO[estados[n]] }),
-        h('button', { type: 'button', class: 'boton principal abrirActividad', texto: estados[n] === 'sin-crear' ? 'Crear actividad' : 'Abrir actividad', onclick: intentar(async function () {
+        soloVer && estados[n] === 'sin-crear' ? null : h('button', { type: 'button', class: 'boton principal abrirActividad', texto: estados[n] === 'sin-crear' ? 'Crear actividad' : 'Abrir actividad', onclick: intentar(async function () {
           if (!a.criterio) throw new Error('Elige antes el criterio de esta actividad.');
-          await guardar();
+          if (!soloVer) await guardar();
           var curso = cat.curso, k = C.buscar(a.criterio, curso), previa = null;
           if (a.actividadId) previa = await est.carpeta.leerJSON('actividades/' + a.actividadId + '.json');
           est.grupo = s.grupo; est.areaCrit = a.area; est.cursoCrit = curso; est.trimestre = Number(s.trimestre); est.criterio = k;

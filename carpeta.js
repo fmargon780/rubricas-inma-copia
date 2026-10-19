@@ -46,6 +46,31 @@
         await w.close();
       },
       async crearCarpeta(ruta) { await subcarpeta(raiz, ruta, true); },
+      /* El texto tal cual está en el fichero (null si no existe): sirve para copiar y comparar byte a byte. */
+      async leerTexto(ruta) {
+        var t = ruta.split('/'), n = t.pop();
+        try { return await (await (await (await subcarpeta(raiz, t.join('/'), false)).getFileHandle(n)).getFile()).text(); }
+        catch (e) { if (e && e.name === 'NotFoundError') return null; throw e; }
+      },
+      async escribirTexto(ruta, texto) {
+        var t = ruta.split('/'), n = t.pop();
+        var w = await (await (await subcarpeta(raiz, t.join('/'), true)).getFileHandle(n, { create: true })).createWritable();
+        await w.write(texto);
+        await w.close();
+      },
+      /* Todo lo que hay en una carpeta: [{ nombre, tipo: 'file'|'directory' }]; null si la carpeta no existe. */
+      async listar(ruta) {
+        var l = [];
+        try { var d = await subcarpeta(raiz, ruta, false); for await (var e of d.entries()) l.push({ nombre: e[0], tipo: e[1].kind }); }
+        catch (e) { if (e && e.name === 'NotFoundError') return null; throw e; }
+        return l.sort(function (a, b) { return a.nombre < b.nombre ? -1 : 1; });
+      },
+      /* Borra un fichero o una carpeta (con todo lo que tenga dentro si es `recursivo`). Si no existe, no hace nada. */
+      async borrar(ruta, recursivo) {
+        var t = ruta.split('/'), n = t.pop();
+        try { await (await subcarpeta(raiz, t.join('/'), false)).removeEntry(n, { recursive: !!recursivo }); }
+        catch (e) { if (!e || e.name !== 'NotFoundError') throw e; }
+      },
       /* Nombres de los ficheros .json de una carpeta (vacío si la carpeta no existe). */
       async listarJSON(ruta) {
         var l = [];

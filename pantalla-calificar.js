@@ -63,7 +63,11 @@
     var cuerpo = orden.map(function (a) {
       var tds = r.filas.map(function (f) {
         var bs = est.config.niveles.map(function (n, k) {
-          return h('button', { type: 'button', class: 'nivelBtn n' + k, 'data-alumno': a, 'data-fila': f.id, 'data-nivel': String(k), title: n.nombre + ' (' + n.valor + ')', 'aria-label': a + ': ' + n.nombre, 'aria-pressed': 'false', texto: R.CORTOS[k], onclick: function () { elegir(a, f, k); } });
+          /* En un curso pasado los niveles se ven pero no son botones: no hay nada que pulsar. */
+          var cuerpo = { class: 'nivelBtn n' + k, 'data-alumno': a, 'data-fila': f.id, 'data-nivel': String(k), title: n.nombre + ' (' + n.valor + ')', 'aria-label': a + ': ' + n.nombre, 'aria-pressed': 'false', texto: R.CORTOS[k] };
+          if (est.editable === false) return h('span', cuerpo);
+          cuerpo.type = 'button'; cuerpo.onclick = function () { elegir(a, f, k); };
+          return h('button', cuerpo);
         });
         botones[a + '|' + f.id] = bs;
         return h('td', {}, [h('div', { class: 'niveles' }, bs)]);

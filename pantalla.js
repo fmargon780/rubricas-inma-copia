@@ -40,7 +40,6 @@
 
     var tarjetas = est.grupos.map(function (gr) {
       var aviso = h('div', { class: 'aviso error', hidden: '' });
-      var entrada = h('input', { type: 'text', placeholder: 'Añadir área…', 'aria-label': 'Nueva área de ' + gr.nombre });
       var subir = h('input', { type: 'file', accept: '.csv,.xls,.txt,.tsv', hidden: '' });
       var manual = h('textarea', { placeholder: 'Un nombre por línea', hidden: '' });
       var zona = h('div', { class: 'zona', texto: 'Suelta aquí el listado de Séneca (CSV o XLS) o pulsa para elegirlo' });
@@ -68,17 +67,35 @@
       zona.ondrop = function (e) { e.preventDefault(); zona.classList.remove('encima'); if (e.dataTransfer.files[0]) intentar(function () { return leerFichero(e.dataTransfer.files[0]); })(); };
       subir.onchange = function () { if (subir.files[0]) intentar(function () { return leerFichero(subir.files[0]); })(); };
 
+      var editable = est.editable !== false;
       var areas = gr.areas.map(function (a) {
         var elegida = est.grupo === gr.id && est.area === a.id;
         return h('span', { class: 'area' + (elegida ? ' elegida' : '') }, [
           h('button', { type: 'button', texto: a.nombre, onclick: function () { est.grupo = gr.id; est.area = a.id; refrescar(); } }),
-          h('button', { type: 'button', class: 'quitar', title: 'Quitar el área', 'aria-label': 'Quitar ' + a.nombre, texto: '✕', onclick: intentar(function () { if (est.area === a.id && est.grupo === gr.id) est.area = null; return guardar(D.quitarArea(est.grupos, gr.id, a.id)); }) })
+          editable ? h('button', { type: 'button', class: 'quitar', title: 'Quitar el área', 'aria-label': 'Quitar ' + a.nombre, texto: '✕', onclick: intentar(function () { if (est.area === a.id && est.grupo === gr.id) est.area = null; return guardar(D.quitarArea(est.grupos, gr.id, a.id)); }) }) : null
         ]);
       });
+      var cabecera = h('h2', {}, [gr.nombre, h('span', { class: 'cuenta', texto: (est.cuenta[gr.id] || 0) + ' alumnos' })]);
+      if (!editable) return h('div', { class: 'tarjeta', 'data-grupo': gr.id }, [cabecera, h('div', { class: 'areas' }, areas)]);
+
+      var nombreNuevo = h('input', { type: 'text', value: gr.nombre, 'aria-label': 'Nombre del grupo ' + gr.nombre });
+      var cambiarNombre = h('div', { class: 'fila cambiar-grupo' }, [nombreNuevo, h('button', { type: 'button', class: 'boton', texto: 'Cambiar nombre', onclick: intentar(async function () {
+        if (nombreNuevo.value.trim() === gr.nombre) return;
+        if ((est.cuenta[gr.id] || 0) > 0 || await enUso(est, gr.id)) throw new Error('El grupo ' + gr.nombre + ' ya tiene alumnado o trabajo: no se puede cambiar su nombre. Quítalo y añade el nuevo.');
+        var lista = D.renombrarGrupo(est.grupos, gr.id, nombreNuevo.value);
+        if (est.grupo === gr.id) { est.grupo = null; est.area = null; }
+        return guardar(lista);
+      }) })]);
+      var n = parseInt(gr.nombre, 10), catalogo = isNaN(n) ? [] : g.Criterios.areas().filter(function (a) { return g.Criterios.cursos(a.id).indexOf(n) >= 0; });
+      var marcar = h('div', { class: 'marcar-areas', 'aria-label': 'Áreas de ' + gr.nombre }, catalogo.length ? catalogo.map(function (a) {
+        var c = h('input', { type: 'checkbox', 'data-area': a.id }); c.checked = gr.areas.some(function (x) { return x.id === a.id; });
+        c.onchange = intentar(function () { return guardar(c.checked ? D.anadirArea(est.grupos, gr.id, a.nombre) : D.quitarArea(est.grupos, gr.id, a.id)); });
+        return h('label', {}, [c, a.nombre]);
+      }) : [h('span', { class: 'suave', texto: 'Aún no hay criterios cargados para ' + (isNaN(n) ? gr.nombre : n + 'º') })]);
       return h('div', { class: 'tarjeta' + (est.grupo === gr.id ? ' elegida' : ''), 'data-grupo': gr.id }, [
-        h('h2', {}, [gr.nombre, h('span', { class: 'cuenta', texto: (est.cuenta[gr.id] || 0) + ' alumnos' })]),
+        cabecera,
         h('div', { class: 'areas' }, areas),
-        h('div', { class: 'fila' }, [entrada, h('button', { type: 'button', class: 'boton', texto: 'Añadir', onclick: intentar(function () { var v = entrada.value; return guardar(D.anadirArea(est.grupos, gr.id, v)); }) })]),
+        marcar, cambiarNombre,
         zona, subir, aviso, manual, botonManual,
         h('div', { class: 'fila' }, [
           h('button', { type: 'button', class: 'boton', texto: 'Escribir nombres a mano', onclick: function () { manual.hidden = false; botonManual.hidden = false; } }),
@@ -91,12 +108,45 @@
       ]);
     });
 
+    if (est.editable === false) { montar([h('div', { class: 'rejilla' }, tarjetas)]); return; }
     var nuevo = h('input', { type: 'text', placeholder: 'Nuevo grupo, por ejemplo 5º A', 'aria-label': 'Nombre del nuevo grupo' });
     montar([
       h('div', { id: 'mensaje', class: 'aviso error', hidden: '' }),
       h('div', { class: 'rejilla' }, tarjetas),
-      h('div', { class: 'nueva' }, [nuevo, h('button', { type: 'button', class: 'boton principal', texto: 'Añadir grupo', onclick: intentar(function () { return guardar(D.anadirGrupo(est.grupos, nuevo.value)); }) })])
+      h('div', { class: 'nueva' }, [nuevo, h('button', { type: 'button', class: 'boton principal', texto: 'Añadir grupo', onclick: intentar(function () { return guardar(D.anadirGrupo(est.grupos, nuevo.value)); }) })]),
+      cursoNuevo(est, intentar)
     ]);
+  }
+
+  /* ¿Hay actividades o situaciones de este grupo? */
+  async function enUso(est, gid) {
+    var a = await g.Trabajo.actividades(est.carpeta), s = await g.Situacion.todas(est.carpeta);
+    return a.concat(s).some(function (x) { return x.grupo === gid; });
+  }
+
+  /* Al final de «Mis grupos»: «Empezar curso nuevo» y, mientras el curso nuevo no tenga trabajo, «Deshacer curso nuevo». */
+  function cursoNuevo(est, intentar) {
+    var caja = h('div', { class: 'curso-nuevo', id: 'cursoNuevo' }), actual = est.config.cursoActual;
+    var boton = h('button', { type: 'button', class: 'boton', id: 'empezarCurso', texto: 'Empezar curso nuevo', onclick: function () { formulario(); } });
+    var formulario = function () {
+      var nombre = h('input', { type: 'text', id: 'nombreCurso', value: g.Cursos.siguiente(actual), 'aria-label': 'Nombre del curso nuevo' });
+      var aviso = h('div', { class: 'aviso error', hidden: '' });
+      caja.textContent = '';
+      [h('label', { class: 'campo' }, ['Curso nuevo', nombre]),
+        h('p', { class: 'suave', texto: 'El curso ' + actual + ' quedará guardado solo para consultar. Si te faltan notas, ponlas antes.' }),
+        h('button', { type: 'button', class: 'boton principal', id: 'confirmarCurso', texto: 'Empezar', onclick: async function () {
+          try { await est.empezarCurso(nombre.value); } catch (e) { aviso.textContent = e.message || String(e); aviso.hidden = false; }
+        } }),
+        h('button', { type: 'button', class: 'boton', texto: 'Cancelar', onclick: function () { caja.textContent = ''; caja.appendChild(boton); if (deshacer) caja.appendChild(deshacer); } }), aviso
+      ].forEach(function (n) { caja.appendChild(n); });
+    };
+    var deshacer = est.anterior ? h('button', { type: 'button', class: 'boton peligro', id: 'deshacerCurso', texto: 'Deshacer curso nuevo', onclick: intentar(async function () {
+      if (!confirm('Se borrará el curso ' + actual + ' con sus grupos y alumnado. El curso ' + est.anterior + ' vuelve a poder cambiarse. ¿Seguir?')) return;
+      await est.deshacerCurso();
+    }) }) : null;
+    caja.appendChild(boton);
+    if (deshacer) caja.appendChild(deshacer);
+    return caja;
   }
 
   g.Pantalla = { pedirCarpeta: pedirCarpeta, error: error, pintarGrupos: pintarGrupos };

@@ -4,7 +4,8 @@
 (function (g) {
   'use strict';
 
-  var CARPETAS = ['alumnado', 'criterios', 'situaciones', 'actividades', 'rubricas', 'calificaciones'];
+  /* Carpetas que cuelgan de cada curso (cursos/<curso>/…). */
+  var CARPETAS = ['alumnado', 'situaciones', 'actividades', 'rubricas', 'calificaciones'];
   var CURSO = '26-27';
   var NIVELES = [
     { nombre: 'Insuficiente', valor: 3 }, { nombre: 'Suficiente', valor: 5 }, { nombre: 'Bien', valor: 6 },
@@ -31,7 +32,7 @@
     nombre = String(nombre || '').replace(/\s+/g, ' ').trim();
     if (!nombre) throw new Error('Escribe el nombre del grupo.');
     var gid = id(nombre).replace(/-/g, '');
-    if (grupos.some(function (x) { return x.id === gid; })) throw new Error('Ya existe el grupo «' + nombre + '».');
+    if (grupos.some(function (x) { return x.id === gid; })) throw new Error('Ya hay un grupo ' + nombre + '.');
     return grupos.concat([{ id: gid, nombre: nombre, areas: [] }]);
   }
   function quitarGrupo(grupos, gid) { return grupos.filter(function (x) { return x.id !== gid; }); }
@@ -50,17 +51,13 @@
     return l;
   }
 
-  /* Abre la carpeta: si está vacía crea lo necesario, si ya tiene datos los lee y no toca nada. */
-  async function iniciar(carpeta) {
-    var marca = await carpeta.leerJSON('rubricas.json');
-    if (marca && marca.formato > 1) throw new Error('Esta carpeta es de una versión más nueva de la página. Actualiza la página.');
-    if (!marca) await carpeta.escribirJSON('rubricas.json', { formato: 1, aplicacion: 'rubricas-inma' });
-    for (var i = 0; i < CARPETAS.length; i++) await carpeta.crearCarpeta(CARPETAS[i]);
-    var config = await carpeta.leerJSON('config.json');
-    if (!config) { config = { curso: CURSO, niveles: NIVELES }; await carpeta.escribirJSON('config.json', config); }
-    var grupos = await carpeta.leerJSON('grupos.json');
-    if (!grupos) { grupos = gruposIniciales(); await carpeta.escribirJSON('grupos.json', grupos); }
-    return { config: config, grupos: grupos, nuevo: !marca };
+  /* Cambia el nombre de un grupo (y con él su id). Solo si nadie más lo usa: ni alumnado ni trabajo guardado. */
+  function renombrarGrupo(grupos, gid, nombre) {
+    nombre = String(nombre || '').replace(/\s+/g, ' ').trim();
+    if (!nombre) throw new Error('Escribe el nombre del grupo.');
+    var nid = id(nombre).replace(/-/g, '');
+    if (nid !== gid && grupos.some(function (x) { return x.id === nid; })) throw new Error('Ya hay un grupo ' + nombre + '.');
+    return grupos.map(function (x) { return x.id === gid ? { id: nid, nombre: nombre, areas: copia(x.areas) } : x; });
   }
 
   function guardarGrupos(carpeta, grupos) { return carpeta.escribirJSON('grupos.json', grupos); }
@@ -92,7 +89,7 @@
     return { actividades: act.filter(function (a) { return Number(a.trimestre) === Number(trimestre); }).length, rubricas: rub };
   }
 
-  var api = { usoDeCriterio: usoDeCriterio, iniciar: iniciar, gruposIniciales: gruposIniciales, anadirGrupo: anadirGrupo, quitarGrupo: quitarGrupo, anadirArea: anadirArea, quitarArea: quitarArea,
+  var api = { usoDeCriterio: usoDeCriterio, gruposIniciales: gruposIniciales, renombrarGrupo: renombrarGrupo, area: area, NIVELES: NIVELES, CURSO: CURSO, anadirGrupo: anadirGrupo, quitarGrupo: quitarGrupo, anadirArea: anadirArea, quitarArea: quitarArea,
     guardarGrupos: guardarGrupos, guardarAlumnado: guardarAlumnado, leerAlumnado: leerAlumnado, contarAlumnos: contarAlumnos, CARPETAS: CARPETAS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Datos = api;
 })(typeof window !== 'undefined' ? window : globalThis);

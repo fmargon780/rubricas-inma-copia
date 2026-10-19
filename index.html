@@ -11,9 +11,11 @@
 <body>
 <header class="cabecera">
   <h1>Mis rúbricas</h1>
+  <label class="curso-sel">Curso <select id="selectorCurso" aria-label="Curso"></select></label>
   <div class="seleccion" id="seleccion">Sin grupo elegido</div>
   <div class="carpeta" id="estadoCarpeta"></div>
 </header>
+<div class="aviso-curso" id="avisoCurso" hidden></div>
 <nav class="pasos" id="pasos" aria-label="Pasos">
   <button type="button" id="pasoSituacion">1 · Situación</button>
   <button type="button" id="pasoCriterio">2 · Criterio</button>
@@ -29,6 +31,8 @@
 <script src="commit.js"></script>
 <script src="seneca.js"></script>
 <script src="datos.js"></script>
+<script src="cursos.js"></script>
+<script src="solo-consulta.js"></script>
 <script src="carpeta.js"></script>
 <script src="criterios.js"></script>
 <script src="pantalla.js"></script>

@@ -45,8 +45,11 @@
       ]));
     });
 
+    var soloVer = est.editable === false;
     var nombrePlantilla = h('input', { type: 'text', id: 'nombrePlantilla', value: r.nombre || act.titulo, 'aria-label': 'Nombre para guardarla' });
-    var lateral = h('aside', { class: 'tarjeta lateral', id: 'misRubricas' }, [
+    var lateral = soloVer ? h('aside', { class: 'tarjeta lateral', id: 'misRubricasLectura' }, [h('h2', { texto: 'Mis rúbricas' })].concat(
+      plantillas.length ? plantillas.map(function (p) { return h('p', { class: 'plantilla-nombre', texto: p.nombre + ' (' + p.filas.length + ' filas)' }); }) : [h('p', { class: 'suave', texto: 'No hay ninguna guardada.' })]
+    )) : h('aside', { class: 'tarjeta lateral', id: 'misRubricas' }, [
       h('h2', { texto: 'Mis rúbricas' }),
       plantillas.length ? h('div', { class: 'lista' }, plantillas.map(function (p) {
         return h('button', { type: 'button', class: 'boton', 'data-plantilla': p.id, texto: 'Usar «' + p.nombre + '» (' + p.filas.length + ' filas)', onclick: intentar(async function () {
