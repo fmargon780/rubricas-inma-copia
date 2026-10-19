@@ -38,3 +38,18 @@ button.peligro { border-color: var(--rojo); color: var(--rojo); }
 .nueva input { flex: 1; }
 .aviso-ambar { background: var(--ambar); border-bottom: 1px solid #e0b34a; padding: 6px 16px; font-size: 13px; }
 .aviso-ambar .accion { font: inherit; margin-left: 8px; }
+.barra { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.campo { display: flex; flex-direction: column; font-size: 13px; color: var(--suave); gap: 2px; }
+select { font: inherit; border: 1px solid var(--linea); border-radius: 6px; padding: 5px 8px; background: #fff; color: var(--tinta); }
+.dos { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 12px; align-items: start; }
+.competencia { background: #fff; border: 1px solid var(--linea); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
+.competencia h3 { margin: 0 0 6px; font-size: 14px; font-weight: 500; }
+.numero { font-weight: 700; color: var(--verde); }
+.criterios { display: flex; flex-direction: column; gap: 4px; }
+.criterio { font: inherit; text-align: left; border: 1px solid var(--linea); background: var(--fondo); border-radius: 6px; padding: 5px 8px; cursor: pointer; color: var(--tinta); }
+.criterio.marcado { background: var(--verde-claro); border-color: var(--verde); box-shadow: 0 0 0 2px var(--verde-claro); }
+.lateral { position: sticky; top: 8px; }
+.lateral .codigo { font-weight: 700; font-size: 18px; margin: 0; color: var(--verde); }
+.lateral p { margin: 0; }
+.suave { color: var(--suave); font-size: 13px; }
+@media (max-width: 800px) { .dos { grid-template-columns: 1fr; } }

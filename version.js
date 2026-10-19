@@ -1,1 +1,1 @@
-window.VERSION_PAGINA = 'rúbricas v1';
+window.VERSION_PAGINA = 'rúbricas v2';

@@ -79,7 +79,20 @@
     return cuenta;
   }
 
-  var api = { iniciar: iniciar, gruposIniciales: gruposIniciales, anadirGrupo: anadirGrupo, quitarGrupo: quitarGrupo, anadirArea: anadirArea, quitarArea: quitarArea,
+  /* Cuánto se usa un criterio en la clase: actividades de ese trimestre que lo evalúan y rúbricas guardadas de esas actividades (de cualquier trimestre).
+     Actividad: { id, trimestre, criterios: ['matematicas:1.1.b', …] }. Rúbrica: { actividad: id }. Las filas 3 y 4 las crean. */
+  async function usoDeCriterio(carpeta, criterioId, trimestre) {
+    var act = [], nombres = await carpeta.listarJSON('actividades');
+    for (var i = 0; i < nombres.length; i++) {
+      var a = await carpeta.leerJSON('actividades/' + nombres[i]);
+      if (a && Array.isArray(a.criterios) && a.criterios.indexOf(criterioId) >= 0) act.push(a);
+    }
+    var ids = act.map(function (a) { return a.id; }), rub = 0, rn = await carpeta.listarJSON('rubricas');
+    for (var j = 0; j < rn.length; j++) { var r = await carpeta.leerJSON('rubricas/' + rn[j]); if (r && ids.indexOf(r.actividad) >= 0) rub++; }
+    return { actividades: act.filter(function (a) { return Number(a.trimestre) === Number(trimestre); }).length, rubricas: rub };
+  }
+
+  var api = { usoDeCriterio: usoDeCriterio, iniciar: iniciar, gruposIniciales: gruposIniciales, anadirGrupo: anadirGrupo, quitarGrupo: quitarGrupo, anadirArea: anadirArea, quitarArea: quitarArea,
     guardarGrupos: guardarGrupos, guardarAlumnado: guardarAlumnado, leerAlumnado: leerAlumnado, contarAlumnos: contarAlumnos, CARPETAS: CARPETAS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Datos = api;
 })(typeof window !== 'undefined' ? window : globalThis);

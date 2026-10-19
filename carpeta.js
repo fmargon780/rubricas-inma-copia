@@ -45,7 +45,14 @@
         await w.write(JSON.stringify(objeto, null, 2));
         await w.close();
       },
-      async crearCarpeta(ruta) { await subcarpeta(raiz, ruta, true); }
+      async crearCarpeta(ruta) { await subcarpeta(raiz, ruta, true); },
+      /* Nombres de los ficheros .json de una carpeta (vacío si la carpeta no existe). */
+      async listarJSON(ruta) {
+        var l = [];
+        try { var d = await subcarpeta(raiz, ruta, false); for await (var e of d.entries()) if (e[1].kind === 'file' && /\.json$/.test(e[0])) l.push(e[0]); }
+        catch (e) { if (!e || e.name !== 'NotFoundError') throw e; }
+        return l.sort();
+      }
     };
   }
 

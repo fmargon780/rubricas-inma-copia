@@ -9,11 +9,21 @@
     var carpeta = window.Carpeta.adaptador(handle);
     $('estadoCarpeta').textContent = 'Carpeta: ' + handle.name;
     var base = await window.Datos.iniciar(carpeta);
-    var est = { carpeta: carpeta, grupos: base.grupos, cuenta: {}, grupo: null, area: null };
+    var est = { carpeta: carpeta, grupos: base.grupos, cuenta: {}, grupo: null, area: null, paso: 'grupos', criterio: null };
     var refrescar = async function () {
+      var p = est.paso;
+      $('pasoGrupos').classList.toggle('activo', p === 'grupos');
+      $('pasoCriterio').classList.toggle('activo', p === 'criterio');
+      $('pasoActividad').classList.toggle('activo', p === 'actividad');
+      $('pasoActividad').disabled = p !== 'actividad';
+      if (p === 'criterio') { await window.PantallaCriterio.pintarCriterio(est, refrescar); return; }
+      if (p === 'actividad') { window.PantallaCriterio.pintarActividad(est, refrescar); return; }
       est.cuenta = await window.Datos.contarAlumnos(carpeta, est.grupos);
       window.Pantalla.pintarGrupos(est, refrescar);
     };
+    $('pasoGrupos').onclick = function () { est.paso = 'grupos'; refrescar(); };
+    $('pasoCriterio').onclick = function () { est.paso = 'criterio'; refrescar(); };
+    await window.Criterios.cargar();
     await refrescar();
   }
 
