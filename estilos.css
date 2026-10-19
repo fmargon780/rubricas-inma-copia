@@ -1,0 +1,40 @@
+@font-face { font-family: "Figtree"; src: url("figtree.woff2") format("woff2"); font-weight: 300 900; font-display: swap; }
+:root { --verde: #1F6B5E; --verde-claro: #E3EFEC; --fondo: #F5F4EF; --tinta: #1d2a27; --suave: #5f6d69; --linea: #d6d4c9; --rojo: #a33a2c; --ambar: #fff4d6; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.4 "Figtree", system-ui, Arial, sans-serif; color: var(--tinta); background: var(--fondo); display: flex; flex-direction: column; min-height: 100vh; }
+.cabecera { background: var(--verde); color: #fff; display: flex; align-items: center; gap: 16px; padding: 10px 16px; }
+.cabecera h1 { margin: 0; font-size: 20px; }
+.seleccion { flex: 1; background: rgba(255,255,255,.15); border-radius: 6px; padding: 4px 10px; }
+.carpeta { font-size: 13px; opacity: .85; }
+.pasos { display: flex; gap: 4px; padding: 6px 16px; background: #fff; border-bottom: 1px solid var(--linea); }
+.pasos button { flex: 1; font: inherit; border: 1px solid var(--linea); background: var(--fondo); color: var(--suave); border-radius: 6px; padding: 6px 4px; }
+.pasos button.activo { background: var(--verde); color: #fff; border-color: var(--verde); }
+.pasos button:disabled { opacity: .55; }
+main { flex: 1; padding: 12px 16px; }
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.tarjeta { background: #fff; border: 1px solid var(--linea); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.tarjeta.elegida { border-color: var(--verde); box-shadow: 0 0 0 2px var(--verde-claro); }
+.tarjeta h2 { margin: 0; font-size: 17px; display: flex; justify-content: space-between; align-items: baseline; }
+.cuenta { font-size: 13px; color: var(--suave); font-weight: normal; }
+.areas { display: flex; flex-wrap: wrap; gap: 6px; }
+.area { display: inline-flex; align-items: center; border: 1px solid var(--verde); border-radius: 14px; background: #fff; }
+.area.elegida { background: var(--verde); color: #fff; }
+.area button { font: inherit; border: 0; background: none; color: inherit; padding: 3px 8px; cursor: pointer; }
+.area .quitar { padding-left: 2px; opacity: .7; }
+.fila { display: flex; gap: 6px; }
+.fila input { flex: 1; min-width: 0; }
+input, textarea { font: inherit; border: 1px solid var(--linea); border-radius: 6px; padding: 5px 8px; background: #fff; }
+textarea { width: 100%; min-height: 90px; }
+button.boton { font: inherit; border: 1px solid var(--verde); background: #fff; color: var(--verde); border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+button.principal { background: var(--verde); color: #fff; }
+button.peligro { border-color: var(--rojo); color: var(--rojo); }
+.zona { border: 2px dashed var(--linea); border-radius: 6px; padding: 10px; text-align: center; color: var(--suave); }
+.zona.encima { border-color: var(--verde); background: var(--verde-claro); }
+.aviso { border-radius: 8px; padding: 10px 12px; background: var(--ambar); border: 1px solid #e0b34a; }
+.aviso.error { background: #fdecec; border-color: var(--rojo); }
+.vacio { max-width: 520px; margin: 40px auto; background: #fff; border: 1px solid var(--linea); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.pie { padding: 6px 16px; font-size: 12px; color: var(--suave); }
+.nueva { margin-top: 12px; display: flex; gap: 6px; max-width: 420px; }
+.nueva input { flex: 1; }
+.aviso-ambar { background: var(--ambar); border-bottom: 1px solid #e0b34a; padding: 6px 16px; font-size: 13px; }
+.aviso-ambar .accion { font: inherit; margin-left: 8px; }

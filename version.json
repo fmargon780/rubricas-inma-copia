@@ -1,0 +1,19 @@
+{
+  "version": "rúbricas v1",
+  "commit": "aa55b65",
+  "ficheros": {
+    "ABRIR MIS RUBRICAS.html": "9b1039f2b2631b4a13139086e3b067ca0485244db74a7f790da3b6389663098e",
+    "actualizar-copia.js": "86cb7d87ff04bee055d85c3ab07100ffb364282c5bee1da3279d2477bac2cb96",
+    "arranque.js": "d6a79623d9b4d34335a642fba22339cf14f6fe12fd8717b8b9325f8e9588677a",
+    "carpeta.js": "9d67417dd9814f2834cd99ad433e173329839ba4cbf724f616bb5d13b25f5dca",
+    "commit.js": "6de1c5b98ce48ccc448ac14a8f7dfe50b6ac6a420053b13cc34371d347f83a0a",
+    "datos.js": "09428a83fd511422abfe8bf95ed1a3b98c280a602679522fd46d35afb807968d",
+    "estilos.css": "603e04286ed036881051c790383b8a67043c2d66fc10e2290209205e6d31cbdf",
+    "figtree-LICENSE.txt": "ee23e6c84000126692e112ff067b456470493349f993ceaa8b4d3766dd6fad5d",
+    "figtree.woff2": "4ba7d3d096695818fe0686be4f1e82c6b05134e18a22260336130335027462dd",
+    "index.html": "dadb66fb3ff53a9a55d8093f17e9b2ab0d165b996d529eb0f3840bbbdcf22721",
+    "pantalla.js": "7c58da0854e898833386b3495f33e4b58ac6b10cd0eab7fa2162c7f440d26731",
+    "seneca.js": "b4da9a2cce1b5fee88021aa71a662af9de95910ea1bf737d1074fed8b2eae001",
+    "version.js": "03509162a8a80515db57526e3e0d8c4ced20d7add2b71e0a8996bc62180db5e9"
+  }
+}
