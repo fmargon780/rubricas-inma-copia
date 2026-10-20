@@ -43,7 +43,17 @@
     return (ids || []).filter(function (id) { if (set[id]) return true; if (quitados.indexOf(id) < 0) quitados.push(id); return false; });
   }
 
-  /* Copia una actividad (con su rúbrica, sin notas) al curso actual. Devuelve la actividad nueva. */
+  /* La hoja del alumno (normal y adaptada) para la actividad nueva: cada `fila` pasa a su id nuevo; si la fila no está en la tabla, se quita. */
+  function hojaTraida(hoja, actividadId, filasNuevas) {
+    var n = copia(hoja), traducir = function (l) {
+      (l || []).forEach(function (e) { if (e.fila && filasNuevas[e.fila]) e.fila = filasNuevas[e.fila]; else delete e.fila; });
+    };
+    n.actividad = actividadId; traducir(n.ejercicios);
+    if (n.adaptada) traducir(n.adaptada.ejercicios);
+    return n;
+  }
+
+  /* Copia una actividad (con su rúbrica y su hoja, sin notas) al curso actual. Devuelve la actividad nueva. */
   async function actividadSuelta(raiz, destino, curso, id, op, sid, quitados) {
     var base = 'cursos/' + curso + '/', a = await raiz.leerJSON(base + 'actividades/' + id + '.json');
     if (!a) throw new Error('No encuentro esa actividad en el curso ' + curso + '.');
@@ -51,11 +61,14 @@
     n.id = R.nuevoId('a'); n.grupo = op.grupo.id; n.area = area; n.curso = cursoDe(op.grupo); n.origen = { curso: curso, id: id };
     n.criterios = filtrar(a.criterios, validos(op.Criterios, area, n.curso), quitados);
     delete n.situacion; if (sid) n.situacion = sid;
+    var filasNuevas = {};
     if (r) {
       var c = copia(r); c.id = R.nuevoId('r'); c.actividad = n.id; delete c.plantilla;
-      c.filas.forEach(function (f) { f.id = R.nuevoId('f'); if (f.criterio && n.criterios.indexOf(f.criterio) < 0) delete f.criterio; });
+      c.filas.forEach(function (f, k) { f.id = R.nuevoId('f'); filasNuevas[r.filas[k].id] = f.id; if (f.criterio && n.criterios.indexOf(f.criterio) < 0) delete f.criterio; });
       await destino.escribirJSON('rubricas/' + n.id + '.json', c);
     }
+    var hoja = await raiz.leerJSON(base + 'hojas/' + id + '.json');
+    if (hoja) await destino.escribirJSON('hojas/' + n.id + '.json', hojaTraida(hoja, n.id, filasNuevas));
     await destino.escribirJSON('actividades/' + n.id + '.json', n);
     return n;
   }

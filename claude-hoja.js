@@ -30,9 +30,19 @@
   var PIDE = '\nEs una hoja para niños de 3.º-4.º de Primaria: enunciados cortos y claros, con espacio para escribir. La maestra prevé que ocupe ' + 'CARAS' + '.';
   function caras(n) { return n + (n === 1 ? ' cara' : ' caras') + ' de folio'; }
 
+  /* La versión adaptada: para los niños que necesitan una hoja más sencilla. Es una hoja más, no la de un niño concreto. */
+  var PIDE_ADAPTADA = '\nEsta es la VERSIÓN ADAPTADA de la hoja, para los niños que necesitan una más sencilla: menos ejercicios que la hoja normal, enunciados más cortos y fáciles, ' +
+    'ejercicios de los mismos tipos o más sencillos (elegir, verdadero o falso, unir, huecos) y mucho espacio para escribir. Mantén en "fila" la fila de la rúbrica a la que ayuda cada ejercicio, cuando aplique.';
+
   function validar(o, c) { var h = H.normalizarHoja(o, c.actividad.id, c.filas.map(function (f) { return f.id; })); h.porIA = true; h.caras = c.caras; return h; }
   function vigilar(c, nombres, extra) {
     Cl.vigilarNombres([c.actividad.titulo, c.actividad.producto, c.actividad.materiales, extra || ''].concat(c.actividad.pasos).join(' '), nombres);
+  }
+  /* La adaptada tal como la guarda la hoja: {porIA, caras, ejercicios}. Sin ejercicios no vale (lanza, y se reintenta). */
+  function validarAdaptada(o, c) {
+    var a = H.normalizarAdaptada(o, c.filas.map(function (f) { return f.id; }));
+    if (!a) throw new Error('ejercicios');
+    a.porIA = true; a.caras = c.caras; return a;
   }
   var AJ = function (a) { return Object.assign({ maxTokens: 8000 }, a || {}); };
 
@@ -46,11 +56,19 @@
   async function cambiarHoja(clave, c, nombres, ajustes) {
     var actual = JSON.stringify({ ejercicios: c.hoja.ejercicios });
     vigilar(c, nombres, c.cambios + ' ' + actual);
-    var m = contextoHoja(c) + PIDE.replace('CARAS', caras(c.caras)) + '\n\nHoja actual (con los retoques de la maestra):\n' + actual + '\n\nCambios que pide la maestra: ' + c.cambios +
+    var m = contextoHoja(c) + PIDE.replace('CARAS', caras(c.caras)) + (c.adaptada ? PIDE_ADAPTADA : '') + '\n\nHoja actual (con los retoques de la maestra):\n' + actual + '\n\nCambios que pide la maestra: ' + c.cambios +
       '\nNo toques lo que no te pide. Devuelve la hoja entera ya cambiada con este JSON: ' + FORMA;
     return Cl.pedir(clave, m, function (o) { return validar(o, c); }, AJ(ajustes));
   }
 
-  var api = { proponerHoja: proponerHoja, cambiarHoja: cambiarHoja };
+  /* c: como en proponerHoja, más { hoja: la hoja normal tal como está } (sin nombres). Devuelve la adaptada: {porIA, caras, ejercicios}. */
+  async function proponerAdaptada(clave, c, nombres, ajustes) {
+    var normal = JSON.stringify({ ejercicios: c.hoja.ejercicios });
+    vigilar(c, nombres, normal);
+    var m = contextoHoja(c) + PIDE.replace('CARAS', caras(c.caras)) + PIDE_ADAPTADA + '\n\nHoja normal de la que partes:\n' + normal + '\n\nCrea la versión adaptada. Devuelve este JSON: ' + FORMA;
+    return Cl.pedir(clave, m, function (o) { return validarAdaptada(o, c); }, AJ(ajustes));
+  }
+
+  var api = { proponerHoja: proponerHoja, cambiarHoja: cambiarHoja, proponerAdaptada: proponerAdaptada, aAdaptada: function (hoja) { return { porIA: true, caras: hoja.caras, ejercicios: hoja.ejercicios }; } };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.ClaudeHoja = api;
 })(typeof window !== 'undefined' ? window : globalThis);

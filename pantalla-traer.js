@@ -88,7 +88,7 @@
     } });
     Dm.montar([h('div', { class: 'tarjeta', id: 'panelTraer' }, [
       h('h2', { texto: 'Traer «' + (item.titulo || '(sin título)') + '»' }),
-      h('p', { class: 'suave', texto: 'Del curso ' + item.curso + ' (' + item.grupoNombre + '). Se crea una copia en el curso actual, con su rúbrica y sin notas.' }),
+      h('p', { class: 'suave', texto: 'Del curso ' + item.curso + ' (' + item.grupoNombre + '). Se crea una copia en el curso actual, con su rúbrica y su hoja (si la tiene), y sin notas.' }),
       h('label', { class: 'campo' }, ['Grupo', grupo]), areaCaja, aviso,
       h('div', { class: 'fila' }, [traer, h('button', { type: 'button', class: 'boton', id: 'traerCancelar', texto: 'Cancelar', onclick: function () { refrescar(); } })])
     ])]);

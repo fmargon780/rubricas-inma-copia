@@ -71,6 +71,17 @@
     }
     return out;
   }
+  /* ¿Tiene hoja del alumno cada actividad de la situación? true / false; null si la actividad aún no existe. La adaptada no cuenta. */
+  async function hojas(carpeta, s) {
+    var out = [];
+    for (var i = 0; i < s.actividades.length; i++) {
+      var id = s.actividades[i].actividadId;
+      if (!id || !(await carpeta.leerJSON('actividades/' + id + '.json'))) { out.push(null); continue; }
+      var h = await carpeta.leerJSON('hojas/' + id + '.json');
+      out.push(!!(h && Array.isArray(h.ejercicios) && h.ejercicios.length));
+    }
+    return out;
+  }
   var ETIQUETA_ESTADO = { 'sin-crear': 'Actividad sin crear', pendiente: 'Rúbrica pendiente', lista: 'Rúbrica lista' };
 
   async function enlazar(carpeta, sid, n, actividadId) {
@@ -102,6 +113,6 @@
   }
 
   var api = { TRIMESTRES: TRIMESTRES, APARTADOS: APARTADOS, ETIQUETA_ESTADO: ETIQUETA_ESTADO, nueva: nueva, actividadNueva: actividadNueva, criteriosDe: criteriosDe, ponerCriterios: ponerCriterios, todas: todas, guardar: guardar, agrupar: agrupar,
-    catalogo: catalogo, aplicarPropuesta: aplicarPropuesta, estados: estados, enlazar: enlazar, paraSeneca: paraSeneca };
+    catalogo: catalogo, aplicarPropuesta: aplicarPropuesta, estados: estados, hojas: hojas, enlazar: enlazar, paraSeneca: paraSeneca };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Situacion = api;
 })(typeof window !== 'undefined' ? window : globalThis);

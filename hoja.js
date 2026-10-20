@@ -1,5 +1,6 @@
 /* La hoja del alumno, sin pantalla: los once tipos de ejercicio, su forma fija, guardar y leer, soluciones legibles y avisos de caras.
-   Hoja: { actividad, porIA, caras, ejercicios: [{ id, tipo, enunciado, contenido, solucion, fila? }], adaptada: null }, en hojas/<actividad>.json.
+   Hoja: { actividad, porIA, caras, ejercicios: [{ id, tipo, enunciado, contenido, solucion, fila? }], adaptada: null | {porIA, caras, ejercicios} }, en hojas/<actividad>.json.
+   `adaptada` es la versión sencilla de la misma actividad (menos ejercicios, letra grande), con la misma forma de ejercicios.
    Contenido y solución por tipo (los números empiezan en 1):
      elegir   {opciones:[2 a 4]}                         → número de la opción correcta
      vf       {frases:[…]}                               → [true|false por frase]
@@ -81,11 +82,16 @@
     if (f && (!filasIds || filasIds.indexOf(f) >= 0)) e.fila = f;
     return e;
   }
+  /* La versión adaptada: {porIA, caras, ejercicios}. Si no está o viene sin ejercicios, null. */
+  function normalizarAdaptada(a, filasIds) {
+    if (!a || !Array.isArray(a.ejercicios) || !a.ejercicios.length || a.ejercicios.length > MAX_EJERCICIOS) return null;
+    return { porIA: !!a.porIA, caras: entero(a.caras, 1, 10, 1), ejercicios: a.ejercicios.map(function (e) { return normalizarEjercicio(e, filasIds); }) };
+  }
   /* Lo mismo para la hoja entera. Sin ejercicios no vale (lanza). */
   function normalizarHoja(o, actividad, filasIds) {
     if (!o || !Array.isArray(o.ejercicios) || !o.ejercicios.length || o.ejercicios.length > MAX_EJERCICIOS) throw new Error('ejercicios');
     return { actividad: actividad, porIA: !!o.porIA, caras: entero(o.caras, 1, 10, 1),
-      ejercicios: o.ejercicios.map(function (e) { return normalizarEjercicio(e, filasIds); }), adaptada: o.adaptada || null };
+      ejercicios: o.ejercicios.map(function (e) { return normalizarEjercicio(e, filasIds); }), adaptada: normalizarAdaptada(o.adaptada, filasIds) };
   }
   function ejercicioNuevo(tipo) { return normalizarEjercicio({ tipo: tipo, enunciado: '' }); }
   function hojaNueva(actividad, caras) { return { actividad: actividad, porIA: false, caras: caras || 1, ejercicios: [ejercicioNuevo('libre')], adaptada: null }; }
@@ -153,7 +159,7 @@
     return out;
   }
 
-  var api = { TIPOS: TIPOS, FIGURAS: FIGURAS, COLEGIO: COLEGIO, MAX_EJERCICIOS: MAX_EJERCICIOS, normalizarEjercicio: normalizarEjercicio, normalizarHoja: normalizarHoja,
+  var api = { TIPOS: TIPOS, FIGURAS: FIGURAS, COLEGIO: COLEGIO, MAX_EJERCICIOS: MAX_EJERCICIOS, normalizarEjercicio: normalizarEjercicio, normalizarHoja: normalizarHoja, normalizarAdaptada: normalizarAdaptada,
     ejercicioNuevo: ejercicioNuevo, hojaNueva: hojaNueva, cambiarTipo: cambiarTipo, leer: leer, guardar: guardar, solucionATexto: solucionATexto, textoASolucion: textoASolucion,
     solucionLegible: solucionLegible, paginar: paginar, textoCaras: textoCaras, avisosCaras: avisosCaras, huecosDe: huecosDe, nuevoId: nuevoId };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Hoja = api;

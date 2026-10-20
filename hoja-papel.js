@@ -49,7 +49,7 @@
 
   function soluciones(c, hoja, filas) {
     var texto = function (id) { var f = filas.filter(function (x) { return x.id === id; })[0]; return f ? f.texto : ''; };
-    var raiz = div('hoja-soluciones', [h('p', { class: 'solo-maestra', texto: 'SOLUCIONES · solo para la maestra' }), h('h2', { texto: c.titulo }), h('p', { class: 'area-grupo', texto: c.area + ' · ' + c.grupo })]);
+    var raiz = div('hoja-soluciones', [h('p', { class: 'solo-maestra', texto: c.adaptada ? 'SOLUCIONES · VERSIÓN ADAPTADA · solo para la maestra' : 'SOLUCIONES · solo para la maestra' }), h('h2', { texto: c.titulo }), h('p', { class: 'area-grupo', texto: c.area + ' · ' + c.grupo })]);
     hoja.ejercicios.forEach(function (e, i) {
       var f = e.fila ? texto(e.fila) : '';
       raiz.appendChild(div('sol-ejercicio', [h('p', { class: 'enunciado' }, [h('b', { texto: (i + 1) + '. ' }), document.createTextNode(e.enunciado || '(sin enunciado)')]),

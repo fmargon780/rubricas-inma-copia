@@ -29,7 +29,7 @@
     var grupo = est.grupos.filter(function (x) { return x.id === s.grupo; })[0];
     var cat = S.catalogo(grupo, C), porId = {};
     cat.criterios.forEach(function (k) { porId[k.id] = k; });
-    var estados = await S.estados(est.carpeta, s);
+    var estados = await S.estados(est.carpeta, s), hojas = await S.hojas(est.carpeta, s);
     var traido = PT.aviso(est), traer = est.situacionNueva ? PT.boton(est, 'situacion', refrescar, await PT.disponibles(est, 'situacion')) : null;
     var repintar = function () { return pintarSituacion(est, refrescar); };
     var guardar = async function () {
@@ -111,6 +111,7 @@
       return h('div', { class: 'actividad-sit', 'data-n': String(n) }, [
         h('span', { class: 'numero', texto: String(n + 1) }), t, area, ses, crit, otros,
         h('span', { class: 'estado-rubrica ' + estados[n], texto: S.ETIQUETA_ESTADO[estados[n]] }),
+        hojas[n] === null ? null : h('span', { class: 'estado-hoja ' + (hojas[n] ? 'si' : 'no'), texto: hojas[n] ? 'Hoja: sí' : 'Hoja: no' }),
         soloVer && estados[n] === 'sin-crear' ? null : h('button', { type: 'button', class: 'boton principal abrirActividad', texto: estados[n] === 'sin-crear' ? 'Crear actividad' : 'Abrir actividad', onclick: intentar(async function () {
           if (!S.criteriosDe(a).length) throw new Error('Elige antes el criterio de esta actividad.');
           if (!soloVer) await guardar();

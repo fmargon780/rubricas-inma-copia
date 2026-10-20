@@ -21,7 +21,9 @@
     var papel = h('div', { class: 'hoja-papel', id: 'hojaPapel' }), sol = h('div', { class: 'hoja-papel', id: 'hojaSoluciones' });
     var ocupa = h('span', { id: 'ocupaCaras' }), avisosCaras = h('div', { id: 'avisosCaras' });
     var panel = h('div', { id: 'panelHoja', class: 'hoja-pantalla' }), editor = h('div', { id: 'editorHoja', class: 'cambia-hoja' });
-    var mostrada = function () { return pendiente || hoja; };
+    var vista = 'normal'; /* «normal» o «adaptada»: la pestaña abierta */
+    var actual = function () { return vista === 'adaptada' ? (hoja && hoja.adaptada) : hoja; }; /* lo que se retoca, se mide y se imprime */
+    var mostrada = function () { return pendiente || actual(); };
 
     var medir = function () {
       var m = mostrada(); if (!m) return;
@@ -31,9 +33,9 @@
       papel.dataset.caras = String(med.caras);
     };
     var repintarPapel = function () {
-      var m = mostrada(); papel.textContent = ''; sol.textContent = ''; if (!m) return;
+      var m = mostrada(); papel.textContent = ''; sol.textContent = ''; papel.classList.toggle('hoja-adaptada', vista === 'adaptada'); if (!m) return;
       g.HojaPapel.bloques(ctxPapel, m).forEach(function (b) { papel.appendChild(b); });
-      sol.appendChild(g.HojaPapel.soluciones(ctxPapel, m, filas));
+      sol.appendChild(g.HojaPapel.soluciones(vista === 'adaptada' ? Object.assign({ adaptada: true }, ctxPapel) : ctxPapel, m, filas));
       medir();
     };
     if (g.document.fonts && g.document.fonts.ready) g.document.fonts.ready.then(medir);
@@ -42,16 +44,16 @@
     var guardar = async function () { if (!editable || !hoja) return; try { await H.guardar(est.carpeta, hoja); } catch (e) { decir(e.message || String(e)); } };
     var estructura = async function () { await guardar(); pintarEditor(); repintarPapel(); };
     var ctx = { filas: filas, alEscribir: repintarPapel, alTerminar: guardar, alEstructura: estructura,
-      mover: function (i, d) { var l = hoja.ejercicios, j = i + d; if (j < 0 || j >= l.length) return; var t = l[i]; l[i] = l[j]; l[j] = t; estructura(); },
-      quitar: function (i) { if (hoja.ejercicios.length < 2) { decir('La hoja tiene que tener al menos un ejercicio.'); return; } if (!confirm('¿Quitar este ejercicio?')) return; hoja.ejercicios.splice(i, 1); estructura(); } };
+      mover: function (i, d) { var l = actual().ejercicios, j = i + d; if (j < 0 || j >= l.length) return; var t = l[i]; l[i] = l[j]; l[j] = t; estructura(); },
+      quitar: function (i) { var l = actual().ejercicios; if (l.length < 2) { decir('La hoja tiene que tener al menos un ejercicio.'); return; } if (!confirm('¿Quitar este ejercicio?')) return; l.splice(i, 1); estructura(); } };
     var pintarEditor = function () {
       editor.textContent = '';
-      if (!hoja || pendiente) return;
-      hoja.ejercicios.forEach(function (e, i) { editor.appendChild(g.HojaEditor.tarjeta(e, i, ctx)); });
+      if (!actual() || pendiente) return;
+      actual().ejercicios.forEach(function (e, i) { editor.appendChild(g.HojaEditor.tarjeta(e, i, ctx)); });
       var tipo = h('select', { id: 'tipoNuevo', 'aria-label': 'Tipo del ejercicio nuevo' }, H.TIPOS.map(function (t) { return h('option', { value: t.id, texto: t.nombre }); }));
       editor.appendChild(h('div', { class: 'barra' }, [tipo, h('button', { type: 'button', class: 'boton', id: 'anadirEjercicio', texto: 'Añadir ejercicio', onclick: function () {
-        if (hoja.ejercicios.length >= H.MAX_EJERCICIOS) { decir('Una hoja puede tener hasta ' + H.MAX_EJERCICIOS + ' ejercicios.'); return; }
-        hoja.ejercicios.push(H.ejercicioNuevo(tipo.value)); estructura();
+        if (actual().ejercicios.length >= H.MAX_EJERCICIOS) { decir('Una hoja puede tener hasta ' + H.MAX_EJERCICIOS + ' ejercicios.'); return; }
+        actual().ejercicios.push(H.ejercicioNuevo(tipo.value)); estructura();
       } })]));
     };
 
@@ -81,8 +83,16 @@
     };
     var pedirCambios = function (texto) {
       return conClave(async function (clave, nombres) {
-        var c = base(hoja.caras); c.hoja = hoja; c.cambios = texto;
-        pendiente = await CH.cambiarHoja(clave, c, nombres); pintarTodo();
+        var c = base(actual().caras); c.hoja = actual(); c.cambios = texto; c.adaptada = vista === 'adaptada';
+        var r = await CH.cambiarHoja(clave, c, nombres);
+        if (vista === 'adaptada') pendiente = CH.aAdaptada(r); else { r.adaptada = hoja.adaptada; pendiente = r; } /* cambiar la normal no toca la adaptada */
+        pintarTodo();
+      });
+    };
+    var proponerAdaptada = function (caras) {
+      return conClave(async function (clave, nombres) {
+        var c = base(caras); c.hoja = hoja;
+        pendiente = await CH.proponerAdaptada(clave, c, nombres); pintarTodo();
       });
     };
 
@@ -101,9 +111,26 @@
       return n;
     };
 
+    var pestanas = function () {
+      var pestana = function (id, texto, v) {
+        return h('button', { type: 'button', class: 'boton', id: id, role: 'tab', 'aria-selected': String(vista === v), texto: texto, onclick: function () { vista = v; decir(''); pintarTodo(); } });
+      };
+      return h('div', { class: 'pestanas-hoja', role: 'tablist' }, [pestana('pestanaHoja', 'Hoja', 'normal'), pestana('pestanaAdaptada', 'Versión adaptada', 'adaptada')]);
+    };
+
     function pintarTodo() {
       var partes = [barra];
-      if (!hoja && !pendiente) {
+      if (hoja && !pendiente) partes.push(pestanas());
+      if (vista === 'adaptada' && hoja && !hoja.adaptada && !pendiente) {
+        if (!editable) partes.push(h('p', { class: 'suave', id: 'sinAdaptada', texto: 'Esta hoja no tiene versión adaptada.' }));
+        else {
+          var carasA = hoja.caras, nA = numeroCaras(carasA, function (v) { carasA = v; });
+          partes.push(h('div', { class: 'tarjeta cambia-hoja', id: 'adaptadaInicio' }, [h('h2', { texto: 'Versión adaptada' }),
+            h('p', { class: 'suave', texto: 'Claude hace, a partir de la hoja normal, otra más sencilla: menos ejercicios, enunciados más cortos y letra más grande. Es una hoja más, no la de un niño concreto.' }),
+            h('label', { class: 'campo' }, ['Caras previstas', nA]),
+            h('div', { class: 'fila' }, [h('button', { type: 'button', class: 'boton principal', id: 'proponerAdaptada', texto: 'Versión adaptada', onclick: function () { proponerAdaptada(carasA); } })])]));
+        }
+      } else if (!hoja && !pendiente) {
         if (!editable) partes.push(h('p', { class: 'suave', id: 'sinHoja', texto: 'Esta actividad no tiene hoja del alumno.' }));
         else {
           var idea = h('textarea', { id: 'hojaIdea', placeholder: 'Si quieres, cuéntale cómo la quieres. Por ejemplo: con un problema de monedas y un dibujo.' });
@@ -118,25 +145,28 @@
         partes.push(h('div', { class: 'tarjeta cambia-hoja', id: 'propuestaHoja' }, [h('p', { class: 'etiqueta-ia', texto: PC.ETIQUETA }),
           h('p', { class: 'suave', texto: 'Esta es la propuesta (debajo, tal como saldría en el papel). Hasta que la aceptes no se guarda nada.' }),
           h('div', { class: 'fila' }, [h('button', { type: 'button', class: 'boton principal', id: 'aceptarHoja', texto: 'Aceptar', onclick: async function () {
-            hoja = pendiente; pendiente = null; hoja.porIA = true; await guardar(); pintarTodo();
+            pendiente.porIA = true;
+            if (vista === 'adaptada') hoja.adaptada = pendiente; else hoja = pendiente;
+            pendiente = null; await guardar(); pintarTodo();
           } }), h('button', { type: 'button', class: 'boton', id: 'descartarHoja', texto: 'Descartar', onclick: function () { pendiente = null; pintarTodo(); } })])]));
-      } else {
+      } else if (actual()) {
         var cambios = h('textarea', { id: 'hojaCambios', placeholder: 'Qué quieres que cambie: «más corta», «más larga», «cambia el ejercicio 3 por uno de unir»…' });
-        partes.push(h('div', { class: 'cambia-hoja barra' }, [hoja.porIA ? h('span', { class: 'etiqueta-ia', id: 'etiquetaHoja', texto: PC.ETIQUETA }) : null,
-          h('label', { class: 'campo' }, ['Caras previstas', numeroCaras(hoja.caras, function (v) { hoja.caras = v; guardar(); medir(); })])]));
+        partes.push(h('div', { class: 'cambia-hoja barra' }, [actual().porIA ? h('span', { class: 'etiqueta-ia', id: 'etiquetaHoja', texto: PC.ETIQUETA }) : null,
+          h('label', { class: 'campo' }, ['Caras previstas', numeroCaras(actual().caras, function (v) { actual().caras = v; guardar(); medir(); })])]));
         partes.push(h('div', { class: 'tarjeta cambia-hoja', id: 'cajaCambiosHoja' }, [h('h3', { texto: 'Pedir cambios a Claude' }), cambios,
           h('div', { class: 'fila' }, [h('button', { type: 'button', class: 'boton', id: 'pedirCambiosHoja', texto: 'Pedir cambios', onclick: function () {
             if (!cambios.value.trim()) { decir('Escribe qué quieres que cambie.'); return; }
             pedirCambios(cambios.value.trim());
-          } }), h('button', { type: 'button', class: 'boton peligro', id: 'otraHoja', texto: 'Pedir otra hoja a Claude', onclick: function () {
-            if (!confirm('Se perderá la hoja actual. ¿Seguir?')) return;
+          } }), h('button', { type: 'button', class: 'boton peligro', id: 'otraHoja', texto: vista === 'adaptada' ? 'Pedir otra versión adaptada a Claude' : 'Pedir otra hoja a Claude', onclick: function () {
+            if (vista === 'adaptada') { if (!confirm('Se perderá la versión adaptada actual. ¿Seguir?')) return; proponerAdaptada(hoja.adaptada.caras); return; }
+            if (!confirm(hoja.adaptada ? 'Se perderán la hoja actual y su versión adaptada. ¿Seguir?' : 'Se perderá la hoja actual. ¿Seguir?')) return;
             proponer('', hoja.caras);
           } })])]));
       }
       var m = mostrada();
       if (m) partes.push(h('div', { class: 'fila-caras' }, [ocupa]), avisosCaras);
       partes.push(estado, aviso);
-      if (hoja && !pendiente) partes.push(editor);
+      if (actual() && !pendiente) partes.push(editor);
       if (m) partes.push(h('div', { class: 'papel-wrap', id: 'hojaPapelWrap' }, [papel]), h('div', { class: 'papel-wrap sol-wrap', id: 'hojaSolWrap' }, [sol]));
       panel.textContent = ''; partes.forEach(function (p) { panel.appendChild(p); });
       pintarEditor(); repintarPapel();
