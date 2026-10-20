@@ -117,3 +117,58 @@ table.listado-seneca { border-collapse: collapse; background: #fff; }
 .listado-seneca th, .listado-seneca td { border: 1px solid var(--linea); padding: 4px 8px; }
 .listado-seneca th span { display: block; margin-bottom: 2px; }
 .listado-seneca td.nota { text-align: center; }
+/* Fila 25: hoja del alumno. El papel mide lo que mide un folio A4 con márgenes de 1,5 cm (180 mm de ancho) y se ve igual al imprimir. */
+.barra-hoja { align-items: center; }
+.campo-fila { display: inline-flex; align-items: center; gap: 4px; }
+.fila-caras { font-weight: 600; margin: 4px 0; }
+.ed-ejercicio .campo { margin-top: 4px; }
+.ed-ejercicio textarea { min-height: 54px; }
+.ed-ejercicio .ed-numero { width: 90px; }
+.fila-figuras { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.papel-wrap { overflow-x: auto; margin-top: 12px; }
+.hoja-papel { width: 180mm; min-height: 100px; background: #fff; color: #000; border: 1px solid var(--linea); box-shadow: 0 1px 6px rgba(0,0,0,.15); font-size: 14pt; line-height: 1.35; margin: 0 auto; }
+.sol-wrap { display: none; }
+.ver-sol .sol-wrap { display: block; }
+.hoja-papel p { margin: 0; }
+.hoja-cabecera { padding: 0 0 10px; border-bottom: 2px solid #000; text-align: center; }
+.hoja-cabecera .colegio { font-weight: 700; }
+.hoja-cabecera h2 { margin: 4px 0 8px; font-size: 18pt; }
+.nombre-fecha { display: flex; justify-content: space-between; gap: 16px; text-align: left; margin-top: 8px; }
+.rellenar { display: inline-block; border-bottom: 1px solid #000; width: 7cm; height: 1em; vertical-align: baseline; }
+.rellenar.corto { width: 3.5cm; }
+.ejercicio { padding: 12px 0 8px; break-inside: avoid; }
+.ejercicio .enunciado { margin-bottom: 6px; }
+.opcion, .ordenar, .vf { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+.opcion .marca, .ordenar .marca { width: 0.9em; height: 0.9em; border: 2px solid #000; flex: none; }
+.ordenar .marca { width: 1.4em; height: 1.4em; }
+.vf-cajas { display: inline-flex; gap: 4px; flex: none; }
+.caja { display: inline-block; border: 2px solid #000; width: 1.5em; text-align: center; font-weight: 700; }
+.hueco { display: inline-block; border-bottom: 1px solid #000; width: 3cm; }
+.texto-huecos { line-height: 2; }
+.unir-fila { display: grid; grid-template-columns: 1fr 10px 4cm 10px 1fr; align-items: center; min-height: 1.9em; }
+.unir-fila .punto { width: 8px; height: 8px; border-radius: 50%; background: #000; }
+.rodear { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 4px 0; }
+.rodear .elemento { padding: 2px 8px; }
+.linea { border-bottom: 1px solid #000; height: 1.5cm; }
+.recuadro { border: 1.5px solid #000; min-height: 2.2cm; padding: 2px 6px; margin-bottom: 6px; }
+.recuadro.grande { min-height: 6cm; }
+.tabla-vacia { border-collapse: collapse; width: 100%; margin-bottom: 8px; }
+.tabla-vacia td { border: 1.5px solid #000; height: 1.2cm; }
+.dibujo-musica, .dibujo-recta { display: block; max-width: 100%; }
+.hoja-soluciones { padding: 0; }
+.hoja-soluciones .solo-maestra { font-weight: 700; border: 2px solid #000; text-align: center; padding: 4px; }
+.sol-ejercicio { padding: 8px 0; border-bottom: 1px dashed #000; break-inside: avoid; }
+.sol-respuesta { white-space: pre-line; font-weight: 600; }
+.sol-fila { font-size: 11pt; }
+@media print {
+  @page { size: A4 portrait; margin: 1.5cm; }
+  body.imprime-hoja, body.imprime-soluciones { background: #fff; display: block; min-height: 0; }
+  body.imprime-hoja .cabecera, body.imprime-hoja .pasos, body.imprime-hoja .pie, body.imprime-hoja .aviso-curso,
+  body.imprime-soluciones .cabecera, body.imprime-soluciones .pasos, body.imprime-soluciones .pie, body.imprime-soluciones .aviso-curso { display: none; }
+  body.imprime-hoja main, body.imprime-soluciones main { padding: 0; }
+  body.imprime-hoja #panelHoja > :not(#hojaPapelWrap), body.imprime-soluciones #panelHoja > :not(#hojaSolWrap) { display: none; }
+  body.imprime-hoja #hojaSolWrap, body.imprime-soluciones #hojaPapelWrap { display: none; }
+  body.imprime-soluciones #hojaSolWrap { display: block; }
+  .papel-wrap { overflow: visible; margin: 0; }
+  .hoja-papel { border: 0; box-shadow: none; margin: 0; width: auto; }
+}

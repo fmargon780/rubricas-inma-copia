@@ -21,7 +21,7 @@
       if (ruta === 'config.json') return { ruta: ruta, comun: true, escala: true };
       var m = /^rubricas\/(.+)$/.exec(ruta);
       if (m && esPlantilla(m[1])) return { ruta: ruta, comun: true };
-      if (ruta === 'grupos.json' || /^(alumnado|situaciones|actividades|rubricas|calificaciones)(\/|$)/.test(ruta)) return { ruta: base + ruta, comun: false };
+      if (ruta === 'grupos.json' || /^(alumnado|situaciones|actividades|rubricas|calificaciones|hojas)(\/|$)/.test(ruta)) return { ruta: base + ruta, comun: false };
       throw new Error('Ruta desconocida: ' + ruta);
     }
     function escritura(ruta) {

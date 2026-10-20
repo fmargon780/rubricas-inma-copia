@@ -54,6 +54,7 @@
       if (p === 'situacion') { await window.PantallaSituacion.pintarSituacion(est, refrescar); return; }
       if (p === 'criterio') { await window.PantallaCriterio.pintarCriterio(est, refrescar); return; }
       if (p === 'actividad') { await window.PantallaActividad.pintarActividad(est, refrescar); return; }
+      if (p === 'hoja') { await window.PantallaHoja.pintarHoja(est, refrescar); return; }
       if (p === 'rubrica') { await window.PantallaRubrica.pintarRubrica(est, refrescar); return; }
       if (p === 'ajustes') { await window.PantallaClaude.pintarAjustes(est, refrescar); return; }
       if (p === 'calificar') { await window.PantallaCalificar.pintarCalificar(est, refrescar); return; }

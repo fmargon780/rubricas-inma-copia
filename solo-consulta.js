@@ -4,7 +4,7 @@
 (function (g) {
   'use strict';
   var QUITAR = ['.caja-ia', '#cajaSituacion', '#cajaClaude', '#sitAnadirCriterio', '#sitAnadirActividad', '#guardarSituacion', '#situacionNueva', '.criterio-sit button',
-    '.actividad-sit .peligro', '#crearActividad', '#traerPasado', '#guardarActividad', '#actividadNueva', '#anadirFila', '.anadirFilaGrupo', '#anadirCriterio', '#formAnadirCriterio', '.quitarCriterio', '#usarCalificar', 'td.acciones',
+    '.actividad-sit .peligro', '#crearActividad', '#traerPasado', '#guardarActividad', '#actividadNueva', '#anadirFila', '.anadirFilaGrupo', '#anadirCriterio', '#formAnadirCriterio', '.quitarCriterio', '#usarCalificar', '.cambia-hoja', 'td.acciones',
     '.zona', '.nueva', '.cambiar-grupo', '.marcar-areas', '.area .quitar'].join(',');
   var LEER = '#panelSituacion, #panelActividad, #tablaRubrica';
 

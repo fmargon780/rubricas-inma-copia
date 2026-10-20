@@ -137,7 +137,8 @@
         h('div', { class: 'campo' }, ['Criterios que evalúa (puede ser más de uno, también de otra área del grupo)']),
         criteriosCaja,
         h('div', { class: 'fila' }, [h('button', { type: 'button', class: 'boton', id: 'anadirCriterio', texto: 'Añadir criterio', onclick: abrirAnadir })]), anadirCaja,
-        aviso, guardar
+        aviso, guardar,
+        est.actividad ? h('div', { class: 'fila' }, [h('button', { type: 'button', class: 'boton', id: 'hojaAlumno', texto: 'Hoja del alumno', onclick: function () { est.paso = 'hoja'; refrescar(); } })]) : null
       ]),
       lateral
     ])]);

@@ -99,7 +99,7 @@
     var f = (ajustes && ajustes.fetch) || g.fetch.bind(g), r;
     try {
       r = await f(URL_API, { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': clave, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: MODELO, max_tokens: 4000, system: SISTEMA, messages: [{ role: 'user', content: mensaje }] }) });
+        body: JSON.stringify({ model: MODELO, max_tokens: (ajustes && ajustes.maxTokens) || 4000, system: SISTEMA, messages: [{ role: 'user', content: mensaje }] }) });
     } catch (e) { throw ErrorClaude('red', 'No he podido hablar con Claude. Mira si hay internet (la red del colegio puede bloquearlo).'); }
     if (r.status === 401 || r.status === 403) throw ErrorClaude('clave', 'Claude no acepta la clave. Revísala en «Ajustes».');
     if (r.status === 429 || r.status === 529) throw ErrorClaude('ocupado', 'Claude está ocupado o se ha llegado al tope de gasto. Prueba dentro de un rato.');
@@ -189,6 +189,7 @@
   }
 
   var api = { MODELO: MODELO, leerClave: leerClave, guardarClave: guardarClave, quitarClave: quitarClave, vigilarNombres: vigilarNombres,
-    proponerActividad: proponerActividad, proponerRubrica: proponerRubrica, proponerSituacion: proponerSituacion };
+    proponerActividad: proponerActividad, proponerRubrica: proponerRubrica, proponerSituacion: proponerSituacion,
+    pedir: pedir, ErrorClaude: ErrorClaude, trozoJSON: trozoJSON };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Claude = api;
 })(typeof window !== 'undefined' ? window : globalThis);
