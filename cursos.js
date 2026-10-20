@@ -82,10 +82,11 @@
       }
     }
     for (var k = 0; k < D.CARPETAS.length; k++) await raiz.crearCarpeta(base + D.CARPETAS[k]);
-    await raiz.escribirJSON('config.json', { cursoActual: curso, niveles: config.niveles });
+    var resto = Object.assign({}, config); delete resto.curso; /* conserva colegio, correo y lo demás */
+    await raiz.escribirJSON('config.json', Object.assign(resto, { cursoActual: curso, niveles: config.niveles }));
     await borrarVacias(raiz, DE_CURSO.concat(['criterios']));
     await raiz.escribirJSON('rubricas.json', { formato: FORMATO, aplicacion: 'rubricas-inma' });
-    return { cursoActual: curso, niveles: config.niveles };
+    return Object.assign(resto, { cursoActual: curso, niveles: config.niveles });
   }
 
   async function borrarVacias(raiz, nombres) {
@@ -174,7 +175,7 @@
     var propuesta = grupos.map(function (x) { return { id: x.id, nombre: x.nombre, areas: JSON.parse(JSON.stringify(x.areas)) }; });
     await crearCurso(raiz, nombre, propuesta);
     await raiz.escribirJSON('cursos/' + config.cursoActual + '/escala.json', { niveles: config.niveles });
-    var nueva = { cursoActual: nombre, niveles: config.niveles };
+    var nueva = Object.assign({}, config, { cursoActual: nombre, niveles: config.niveles });
     await raiz.escribirJSON('config.json', nueva);
     return nueva;
   }
@@ -190,7 +191,7 @@
     var anterior = await puedeDeshacer(raiz, config);
     if (!anterior) throw new Error('Ya no se puede deshacer: el curso ' + config.cursoActual + ' tiene trabajo guardado.');
     var e = await raiz.leerJSON('cursos/' + anterior + '/escala.json');
-    var nueva = { cursoActual: anterior, niveles: e && e.niveles ? e.niveles : config.niveles };
+    var nueva = Object.assign({}, config, { cursoActual: anterior, niveles: e && e.niveles ? e.niveles : config.niveles });
     await raiz.escribirJSON('config.json', nueva);
     await raiz.borrar('cursos/' + anterior + '/escala.json');
     await raiz.borrar('cursos/' + config.cursoActual, true);

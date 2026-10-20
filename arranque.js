@@ -5,12 +5,18 @@
   var MODO = window.modoApp ? window.modoApp() : 'página web';
   $('versionPagina').textContent = window.VERSION_PAGINA + ' · ' + (window.COMMIT_PAGINA || 'sin-marca') + ' · ' + MODO;
 
+  /* Lo que el botón «Soporte» puede leer (solo lectura para él): paso abierto, correo de Ajustes y nombres del alumnado para limpiarlos. */
+  var Soporte = window.RubricasSoporte = { paso: 'carpeta', correo: '', nombres: [] };
+
   async function abrir(handle) {
     var raiz = window.Carpeta.adaptador(handle);
     $('estadoCarpeta').textContent = 'Carpeta: ' + handle.name;
     var base = await window.Cursos.iniciar(raiz);
     var est = { raiz: raiz, carpeta: null, config: null, configReal: base.config, cursos: base.cursos, curso: null, editable: true, grupos: [], actividad: null, rubrica: null, cuenta: {}, grupo: null, area: null, paso: 'grupos', criterio: null };
     var refrescar;
+    var cargarNombres = async function () {
+      try { var t = []; for (var i = 0; i < est.grupos.length; i++) t = t.concat(await window.Datos.leerAlumnado(est.carpeta, est.grupos[i].id)); Soporte.nombres = t; } catch (e) { /* sin nombres no se rompe nada */ }
+    };
 
     /* Cambia el curso que se mira (el actual, o uno pasado solo para consultar) y vuelve a «Mis grupos». */
     var verCurso = async function (curso) {
@@ -19,7 +25,7 @@
       est.anterior = c.editable ? await window.Cursos.puedeDeshacer(raiz, est.configReal) : null;
       est.cursos = await window.Cursos.listarCursos(raiz);
       est.actividad = est.rubrica = est.criterio = est.situacion = est.enlace = est.grupo = est.area = null; est.situacionNueva = false; est.paso = 'grupos';
-      pintarCabeceraCurso();
+      pintarCabeceraCurso(); await cargarNombres();
     };
     var pintarCabeceraCurso = function () {
       var sel = $('selectorCurso'), aviso = $('avisoCurso');
@@ -46,7 +52,8 @@
     window.SoloConsulta.vigilar($('principal'), function () { return !est.editable; });
     await verCurso(base.config.cursoActual);
     refrescar = async function () {
-      var p = est.paso;
+      var p = est.paso; Soporte.paso = p; Soporte.correo = (est.configReal || est.config || {}).correo || '';
+      if (p === 'grupos') await cargarNombres();
       ['grupos', 'situacion', 'criterio', 'actividad', 'rubrica', 'calificar', 'ajustes'].forEach(function (x) { $('paso' + x.charAt(0).toUpperCase() + x.slice(1)).classList.toggle('activo', p === x); });
       $('pasoActividad').disabled = !(est.criterio || est.actividad);
       $('pasoRubrica').disabled = !est.actividad;

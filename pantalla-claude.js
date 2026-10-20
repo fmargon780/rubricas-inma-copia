@@ -27,7 +27,22 @@
     var guardarColegio = h('button', { type: 'button', class: 'boton', id: 'guardarColegio', texto: 'Guardar el colegio', onclick: async function () {
       try { Dm.decir(avisoColegio, ''); est.config.colegio = colegio.value.trim() || g.Hoja.COLEGIO; await est.carpeta.escribirJSON('config.json', est.config); await refrescar(); } catch (e) { Dm.decir(avisoColegio, e.message || String(e)); }
     } });
-    Dm.montar([h('div', { class: 'tarjeta ajustes', id: 'panelColegio' }, [
+    /* Correo de Inma para el botón «Soporte» (también es de todos los cursos). */
+    var correo = h('input', { type: 'email', id: 'correo', value: (est.configReal || est.config).correo || '', 'aria-label': 'Tu correo' }), avisoCorreo = Dm.aviso();
+    var guardarCorreo = h('button', { type: 'button', class: 'boton', id: 'guardarCorreo', texto: 'Guardar el correo', onclick: async function () {
+      try {
+        Dm.decir(avisoCorreo, ''); var c = correo.value.trim();
+        if (c && (c.length > 200 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c))) throw new Error('Escribe un correo válido, o déjalo vacío.');
+        if (c) est.config.correo = c; else delete est.config.correo;
+        await est.carpeta.escribirJSON('config.json', est.config); await refrescar();
+      } catch (e) { Dm.decir(avisoCorreo, e.message || String(e)); }
+    } });
+    if (!est.editable) { colegio.disabled = guardarColegio.disabled = correo.disabled = guardarCorreo.disabled = true; }
+    var soloActual = est.editable ? [] : [h('p', { class: 'suave', texto: 'Se cambia desde el curso actual.' })];
+    Dm.montar([h('div', { class: 'tarjeta ajustes', id: 'panelCorreo' }, [
+      h('h2', { texto: 'Tu correo' }), h('p', { class: 'suave', texto: 'Si escribes tu correo, el botón "Soporte" no te lo preguntará y te avisará ahí cuando esté resuelto.' }),
+      h('label', { class: 'campo' }, ['Tu correo', correo]), avisoCorreo, h('div', { class: 'fila' }, [guardarCorreo])].concat(soloActual)
+    ), h('div', { class: 'tarjeta ajustes', id: 'panelColegio' }, [
       h('h2', { texto: 'Colegio' }), h('p', { class: 'suave', texto: 'Sale arriba en la hoja del alumno.' }),
       h('label', { class: 'campo' }, ['Nombre del colegio', colegio]), avisoColegio, h('div', { class: 'fila' }, [guardarColegio])
     ]), h('div', { class: 'tarjeta ajustes', id: 'panelAjustes' }, [
