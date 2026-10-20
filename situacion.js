@@ -1,6 +1,7 @@
 /* Situaciones de Aprendizaje: datos y listado para Séneca, sin pantalla (sirve en el navegador y en las pruebas).
    Situación: { id, titulo, grupo, trimestre, reto, semanas, sesiones, producto, recursos, saberes, criterios: ['area:código'],
-   actividades: [{ titulo, area, sesiones, criterio, actividadId|null }], porIA }. Se guarda en situaciones/<id>.json. */
+   actividades: [{ titulo, area, sesiones, criterios: [ids], criterio (el primero), actividadId|null }], porIA }.
+   (Las situaciones viejas traen solo `criterio`: `criteriosDe` lo lee igual.) Se guarda en situaciones/<id>.json. */
 (function (g) {
   'use strict';
   var TRIMESTRES = ['1.er trimestre', '2.º trimestre', '3.er trimestre'];
@@ -10,7 +11,10 @@
   function nueva(grupo, trimestre) {
     return { id: nuevoId(), titulo: '', grupo: grupo || '', trimestre: trimestre || 1, reto: '', semanas: 2, sesiones: 4, producto: '', recursos: '', saberes: '', criterios: [], actividades: [] };
   }
-  function actividadNueva(area) { return { titulo: '', area: area || '', sesiones: 1, criterio: '', actividadId: null }; }
+  function actividadNueva(area) { return { titulo: '', area: area || '', sesiones: 1, criterios: [], criterio: '', actividadId: null }; }
+  /* Los criterios de una actividad de la situación: su lista, o el `criterio` suelto de las situaciones viejas. */
+  function criteriosDe(a) { return Array.isArray(a.criterios) && a.criterios.length ? a.criterios : (a.criterio ? [a.criterio] : []); }
+  function ponerCriterios(a, lista) { a.criterios = lista.slice(); a.criterio = lista[0] || ''; return a; }
 
   async function todas(carpeta) {
     var nombres = await carpeta.listarJSON('situaciones'), out = [];
@@ -48,7 +52,7 @@
     ['titulo', 'semanas', 'sesiones', 'producto', 'recursos', 'criterios'].forEach(function (k) { s[k] = p[k]; });
     var antes = s.actividades;
     s.actividades = p.actividades.map(function (a, i) {
-      var x = actividadNueva(a.area); x.titulo = a.titulo; x.sesiones = a.sesiones; x.criterio = a.criterio;
+      var x = actividadNueva(a.area); x.titulo = a.titulo; x.sesiones = a.sesiones; ponerCriterios(x, a.criterios || (a.criterio ? [a.criterio] : []));
       if (antes[i] && antes[i].actividadId && antes[i].titulo === a.titulo) x.actividadId = antes[i].actividadId;
       return x;
     });
@@ -88,7 +92,7 @@
       s.criterios.map(crit).join('\n'),
       s.saberes || '(Pendiente: copia aquí los saberes básicos del anexo oficial.)',
       s.actividades.map(function (a, i) {
-        return (i + 1) + '. ' + a.titulo + ' — ' + nombreArea(a.area) + ', ' + a.sesiones + (Number(a.sesiones) === 1 ? ' sesión' : ' sesiones') + (a.criterio ? '. Criterio: ' + (porId[a.criterio] ? porId[a.criterio].codigo : a.criterio) : '');
+        return (i + 1) + '. ' + a.titulo + ' — ' + nombreArea(a.area) + ', ' + a.sesiones + (Number(a.sesiones) === 1 ? ' sesión' : ' sesiones') + (criteriosDe(a).length ? '. ' + (criteriosDe(a).length > 1 ? 'Criterios: ' : 'Criterio: ') + criteriosDe(a).map(function (id) { return porId[id] ? porId[id].codigo : id; }).join(', ') : '');
       }).join('\n'),
       TRIMESTRES[s.trimestre - 1] + ' · ' + s.semanas + (Number(s.semanas) === 1 ? ' semana' : ' semanas') + ' · ' + s.sesiones + ' sesiones',
       s.recursos,
@@ -97,7 +101,7 @@
     return APARTADOS.map(function (ap, i) { return { apartado: ap, texto: texto[i] || '' }; });
   }
 
-  var api = { TRIMESTRES: TRIMESTRES, APARTADOS: APARTADOS, ETIQUETA_ESTADO: ETIQUETA_ESTADO, nueva: nueva, actividadNueva: actividadNueva, todas: todas, guardar: guardar, agrupar: agrupar,
+  var api = { TRIMESTRES: TRIMESTRES, APARTADOS: APARTADOS, ETIQUETA_ESTADO: ETIQUETA_ESTADO, nueva: nueva, actividadNueva: actividadNueva, criteriosDe: criteriosDe, ponerCriterios: ponerCriterios, todas: todas, guardar: guardar, agrupar: agrupar,
     catalogo: catalogo, aplicarPropuesta: aplicarPropuesta, estados: estados, enlazar: enlazar, paraSeneca: paraSeneca };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Situacion = api;
 })(typeof window !== 'undefined' ? window : globalThis);

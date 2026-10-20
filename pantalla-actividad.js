@@ -9,7 +9,7 @@
     var gr = est.grupos.filter(function (x) { return x.id === est.grupo; })[0] || est.grupos[0];
     var en = est.enlace;
     return { id: R.nuevoId('a'), titulo: en ? en.titulo : '', grupo: gr ? gr.id : '', area: est.areaCrit, curso: est.cursoCrit, trimestre: est.trimestre || 1,
-      criterios: est.criterio ? [est.criterio.id] : [], sesiones: en ? Math.min(MAX_SESIONES, en.sesiones) : 1, producto: '', materiales: '', pasos: [''] };
+      criterios: en && en.criterios && en.criterios.length ? en.criterios.slice() : (est.criterio ? [est.criterio.id] : []), sesiones: en ? Math.min(MAX_SESIONES, en.sesiones) : 1, producto: '', materiales: '', pasos: [''] };
   }
 
   async function pintarActividad(est, refrescar) {

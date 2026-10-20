@@ -51,7 +51,7 @@
         estado.textContent = 'Claude está pensando…';
         var r = await Cl.proponerSituacion(clave, { curso: cat.curso, areas: cat.areas, criterios: cat.criterios, idea: s.reto.trim(), anterior: anterior, cambios: textoCambios }, await PC.nombresAlumnado(est));
         S.aplicarPropuesta(s, r.situacion);
-        est.avisoDescartados = r.descartados;
+        est.avisoDescartados = r.descartados; est.avisoActividades = r.actividadesDescartadas;
         await repintar();
       } catch (e) {
         estado.textContent = ''; Dm.decir(aviso, e.message || String(e));
@@ -59,9 +59,12 @@
       }
     };
     if (est.avisoDescartados && est.avisoDescartados.length) {
-      Dm.decir(avisoIA, 'Claude propuso ' + est.avisoDescartados.length + ' criterio(s) que no están en la norma oficial cargada («' + est.avisoDescartados.join('», «') + '»). Los he descartado: elige el criterio de esas actividades a mano.');
+      Dm.decir(avisoIA, 'Claude propuso ' + est.avisoDescartados.length + ' criterio(s) que no están en la norma oficial cargada («' + est.avisoDescartados.join('», «') + '»). Los he descartado.');
     }
-    est.avisoDescartados = null;
+    if (est.avisoActividades && est.avisoActividades.length) {
+      avisoIA.appendChild(document.createTextNode(' Claude propuso ' + est.avisoActividades.length + ' actividad(es) sin ningún criterio oficial de su área («' + est.avisoActividades.join('», «') + '»). Las he quitado.'));
+    }
+    est.avisoDescartados = null; est.avisoActividades = null;
     var caja = h('div', { class: 'caja-ia', id: 'cajaSituacion' }, [
       h('h3', { texto: 'Pedir a Claude' }),
       h('p', { class: 'suave', texto: 'Cuéntale el reto y te propone la situación completa, con criterios oficiales. No escribas nombres de alumnos.' }),
@@ -75,7 +78,7 @@
       caja.appendChild(h('div', { class: 'fila' }, [h('button', { type: 'button', class: 'boton', id: 'sitPedirCambios', texto: 'Pedir cambios', onclick: function () {
         if (!cambios.value.trim()) { Dm.decir(aviso, 'Escribe qué quieres que cambie.'); return; }
         pedir({ titulo: s.titulo, semanas: s.semanas, sesiones: s.sesiones, producto: s.producto, recursos: s.recursos, criterios: s.criterios,
-          actividades: s.actividades.map(function (a) { return { titulo: a.titulo, area: a.area, sesiones: a.sesiones, criterio: a.criterio }; }) }, cambios.value.trim());
+          actividades: s.actividades.map(function (a) { return { titulo: a.titulo, area: a.area, sesiones: a.sesiones, criterios: S.criteriosDe(a) }; }) }, cambios.value.trim());
       } })]));
     }
 
@@ -95,17 +98,26 @@
       var t = h('input', { type: 'text', class: 'actSitTitulo', 'aria-label': 'Título de la actividad ' + (n + 1), value: a.titulo }); t.oninput = function () { a.titulo = t.value; };
       var ses = h('input', { type: 'number', min: '1', class: 'actSitSesiones', 'aria-label': 'Sesiones de la actividad ' + (n + 1), value: String(a.sesiones) }); ses.oninput = function () { a.sesiones = Number(ses.value) || 1; };
       var area = selector('Área', 'actSitArea' + n, cat.areas.map(function (x) { return { valor: x.id, texto: x.nombre }; }), a.area, function (v) { a.area = v; });
-      var crit = selector('Criterio', 'actSitCriterio' + n, [{ valor: '', texto: '(sin criterio)' }].concat(s.criterios.map(function (id) { return { valor: id, texto: porId[id] ? porId[id].codigo : id }; })), a.criterio, function (v) { a.criterio = v; });
+      /* Criterios de la actividad: el primero en el selector de siempre; los demás, como etiquetas con ✕ y un selector para añadir otro. */
+      var lista = S.criteriosDe(a), codigo = function (id) { return porId[id] ? porId[id].codigo : id; };
+      var crit = selector('Criterio', 'actSitCriterio' + n, [{ valor: '', texto: '(sin criterio)' }].concat(s.criterios.map(function (id) { return { valor: id, texto: codigo(id) }; })), lista[0] || '', function (v) {
+        S.ponerCriterios(a, v ? [v].concat(lista.slice(1).filter(function (x) { return x !== v; })) : []); repintar();
+      });
+      var otros = h('span', { class: 'criterios-otros', 'data-otros': String(n) }, lista.slice(1).map(function (id) {
+        return h('span', { class: 'criterio-extra', 'data-criterio-extra': id }, [codigo(id) + ' ', h('button', { type: 'button', class: 'mini', 'aria-label': 'Quitar el criterio ' + codigo(id) + ' de la actividad ' + (n + 1), texto: '✕', onclick: function () { S.ponerCriterios(a, lista.filter(function (x) { return x !== id; })); repintar(); } })]);
+      }));
+      var libresAct = s.criterios.filter(function (id) { return lista.indexOf(id) < 0; });
+      if (lista.length && libresAct.length) otros.appendChild(selector('Otro criterio', 'actSitMas' + n, [{ valor: '', texto: '+ otro criterio' }].concat(libresAct.map(function (id) { return { valor: id, texto: codigo(id) }; })), '', function (v) { if (v) { S.ponerCriterios(a, lista.concat([v])); repintar(); } }));
       return h('div', { class: 'actividad-sit', 'data-n': String(n) }, [
-        h('span', { class: 'numero', texto: String(n + 1) }), t, area, ses, crit,
+        h('span', { class: 'numero', texto: String(n + 1) }), t, area, ses, crit, otros,
         h('span', { class: 'estado-rubrica ' + estados[n], texto: S.ETIQUETA_ESTADO[estados[n]] }),
         soloVer && estados[n] === 'sin-crear' ? null : h('button', { type: 'button', class: 'boton principal abrirActividad', texto: estados[n] === 'sin-crear' ? 'Crear actividad' : 'Abrir actividad', onclick: intentar(async function () {
-          if (!a.criterio) throw new Error('Elige antes el criterio de esta actividad.');
+          if (!S.criteriosDe(a).length) throw new Error('Elige antes el criterio de esta actividad.');
           if (!soloVer) await guardar();
-          var curso = cat.curso, k = C.buscar(a.criterio, curso), previa = null;
+          var curso = cat.curso, k = C.buscar(S.criteriosDe(a)[0], curso), previa = null;
           if (a.actividadId) previa = await est.carpeta.leerJSON('actividades/' + a.actividadId + '.json');
           est.grupo = s.grupo; est.areaCrit = a.area; est.cursoCrit = curso; est.trimestre = Number(s.trimestre); est.criterio = k;
-          est.actividad = previa; est.rubrica = null; est.enlace = { sid: s.id, n: n, titulo: a.titulo, sesiones: a.sesiones };
+          est.actividad = previa; est.rubrica = null; est.enlace = { sid: s.id, n: n, titulo: a.titulo, sesiones: a.sesiones, criterios: S.criteriosDe(a) };
           est.paso = 'actividad'; await refrescar();
         }) }),
         h('button', { type: 'button', class: 'boton peligro', 'aria-label': 'Quitar la actividad ' + (n + 1), texto: '✕', onclick: function () { s.actividades.splice(n, 1); repintar(); } })

@@ -84,9 +84,10 @@
           ocupado('Claude está preparando la rúbrica…');
           var filas = await Cl.proponerRubrica(clave, c, nombres);
           var r = R.rubricaNueva(c.actividad.id, c.actividad.titulo, 0);
-          r.filas = filas.map(function (f) { var x = R.filaNueva(f.texto); x.peso = f.peso; x.celdas = f.celdas; return x; });
+          r.filas = filas.map(function (f) { var x = R.filaNueva(f.texto); x.peso = f.peso; x.celdas = f.celdas; if (f.criterio) x.criterio = f.criterio; return x; });
           r.porIA = true;
-          await T.guardarRubrica(est.carpeta, r);
+          /* Si a algún criterio no le ha salido ninguna fila, la rúbrica se abre sin guardar (con el aviso de siempre) hasta que Inma la complete. */
+          if (!filas.faltan || !filas.faltan.length) await T.guardarRubrica(est.carpeta, r);
           est.actividad = c.actividad; est.rubrica = r; est.paso = 'rubrica'; await refrescar();
         });
       } })

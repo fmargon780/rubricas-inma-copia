@@ -37,13 +37,15 @@
     'Si el área es Educación Artística, la maestra es de Música: piensa en música (ritmo, voz, instrumentos del aula, audición, creación), salvo que su idea diga otra cosa. ' +
     'Respondes SOLO con un objeto JSON válido, sin texto antes ni después y sin bloques de código.';
 
-  function textoCriterios(criterios) { return criterios.map(function (c) { return '- ' + c.codigo + ': ' + c.texto; }).join('\n'); }
-  function contexto(c) { return 'Área: ' + c.area + '\nCurso: ' + c.curso + '.º de Primaria\nCriterio(s) de evaluación (texto oficial):\n' + textoCriterios(c.criterios); }
+  /* Con `conId`, cada criterio va con su id exacto («area:código»): así Claude lo puede devolver en cada fila de la rúbrica. */
+  function clave(k) { return k.id || k.codigo; }
+  function textoCriterios(criterios, conId) { return criterios.map(function (c) { return '- ' + (conId ? clave(c) : c.codigo) + ': ' + c.texto; }).join('\n'); }
+  function contexto(c, conId) { return 'Área: ' + c.area + '\nCurso: ' + c.curso + '.º de Primaria\nCriterio(s) de evaluación (texto oficial):\n' + textoCriterios(c.criterios, conId); }
 
   var FORMA_ACTIVIDAD = '{"titulo": "…", "duracion": "por ejemplo 2 sesiones de 45 minutos", "sesiones": número de sesiones (1 a 12), "producto": "producto final", "materiales": "materiales", ' +
     '"pasos": [{"texto": "qué se hace en la sesión", "minutos": número}], "porque": "por qué encaja con el criterio, en una o dos frases"}. "pasos" tiene exactamente "sesiones" elementos.';
-  var FORMA_RUBRICA = '{"filas": [{"texto": "qué se mira", "peso": 1, "celdas": ["Insuficiente", "Suficiente", "Bien", "Notable", "Sobresaliente"]}]}. ' +
-    'De 3 a 5 filas; cada fila lleva exactamente 5 textos en celdas, uno por nivel en ese orden (' + NIVELES.join(', ') + '), con lo que tiene que pasar en cada nivel, en frases cortas y observables.';
+  var FORMA_RUBRICA = '{"filas": [{"criterio": "id exacto de la lista", "texto": "qué se mira", "peso": 1, "celdas": ["Insuficiente", "Suficiente", "Bien", "Notable", "Sobresaliente"]}]}. ' +
+    'De 3 a 8 filas, y como mínimo UNA fila para cada criterio de la lista (cada fila con el id de su criterio, tal cual está escrito; no añadas ni quites criterios). Cada fila lleva exactamente 5 textos en celdas, uno por nivel en ese orden (' + NIVELES.join(', ') + '), con lo que tiene que pasar en cada nivel, en frases cortas y observables.';
 
   function pedirActividad(c) {
     var m = contexto(c) + '\n\nIdea de la maestra: ' + c.idea;
@@ -52,7 +54,7 @@
   }
   function pedirRubrica(c) {
     var a = c.actividad;
-    return contexto(c) + '\n\nActividad: ' + a.titulo + '. Producto final: ' + a.producto + '. Materiales: ' + a.materiales + '.\nPasos:\n' +
+    return contexto(c, true) + '\n\nActividad: ' + a.titulo + '. Producto final: ' + a.producto + '. Materiales: ' + a.materiales + '.\nPasos:\n' +
       a.pasos.map(function (p, i) { return (i + 1) + '. ' + p; }).join('\n') + '\n\nCrea la rúbrica de esta actividad. Devuelve este JSON: ' + FORMA_RUBRICA;
   }
 
@@ -76,13 +78,19 @@
     return { titulo: cadena(o.titulo, 'título'), duracion: cadena(o.duracion, 'duración'), sesiones: n, producto: cadena(o.producto, 'producto'),
       materiales: cadena(o.materiales, 'materiales'), pasos: pasos, porque: cadena(o.porque, 'porque') };
   }
-  function validarRubrica(o) {
-    if (!Array.isArray(o.filas) || o.filas.length < 1 || o.filas.length > 8) throw new Error('filas');
-    return o.filas.map(function (f) {
+  /* Cada fila lleva el id de su criterio. Sin criterio o con uno ajeno a la actividad: lo toma si la actividad tiene uno solo; si tiene varios, queda '' («Sin criterio»).
+     Las filas salen en `filas`; `faltan` son los criterios de la actividad que se han quedado sin ninguna fila. */
+  function validarRubrica(o, criterios) {
+    if (!Array.isArray(o.filas) || o.filas.length < 1 || o.filas.length > 12) throw new Error('filas');
+    var claves = (criterios || []).map(clave), usados = {};
+    var filas = o.filas.map(function (f) {
       if (!Array.isArray(f.celdas) || f.celdas.length !== 5) throw new Error('celdas');
-      var peso = Number(f.peso);
-      return { texto: cadena(f.texto, 'texto'), peso: isFinite(peso) && peso > 0 ? peso : 1, celdas: f.celdas.map(function (x) { return cadena(x, 'celda'); }) };
+      var peso = Number(f.peso), k = String(f.criterio == null ? '' : f.criterio).trim();
+      if (claves.indexOf(k) < 0) k = claves.length === 1 ? claves[0] : '';
+      if (k) usados[k] = 1;
+      return { criterio: k, texto: cadena(f.texto, 'texto'), peso: isFinite(peso) && peso > 0 ? peso : 1, celdas: f.celdas.map(function (x) { return cadena(x, 'celda'); }) };
     });
+    return { filas: filas, faltan: claves.filter(function (k) { return !usados[k]; }) };
   }
 
   /* Una llamada a la API. `ajustes.fetch` permite poner una API de mentira en las pruebas. */
@@ -114,16 +122,27 @@
     vigilarNombres([c.idea, c.cambios, c.anterior ? JSON.stringify(c.anterior) : ''].join(' '), nombres);
     return pedir(clave, pedirActividad(c), validarActividad, ajustes);
   }
-  async function proponerRubrica(clave, c, nombres, ajustes) {
+  /* Devuelve la lista de filas (cada una con su `criterio`). Si algún criterio se queda sin filas se reintenta una vez; si sigue faltando,
+     la lista se devuelve igual con `faltan` (propiedad no enumerable) para que la pantalla la abra sin guardar y con aviso. */
+  async function proponerRubrica(laClave, c, nombres, ajustes) {
     vigilarNombres([c.actividad.titulo, c.actividad.producto, c.actividad.materiales].concat(c.actividad.pasos).join(' '), nombres);
-    return pedir(clave, pedirRubrica(c), validarRubrica, ajustes);
+    var ultima = null;
+    for (var intento = 0; intento < 2; intento++) {
+      var texto = await llamar(laClave, pedirRubrica(c), ajustes), v;
+      try { v = validarRubrica(trozoJSON(texto), c.criterios); } catch (e) { continue; }
+      ultima = v;
+      if (!v.faltan.length) break;
+    }
+    if (!ultima) throw ErrorClaude('forma', 'Claude no ha contestado de forma que yo la entienda. Prueba otra vez; lo que escribiste sigue ahí.');
+    Object.defineProperty(ultima.filas, 'faltan', { value: ultima.faltan, enumerable: false });
+    return ultima.filas;
   }
 
   /* Situación de Aprendizaje. c: { curso, areas: [{id, nombre}], criterios: [{id, area, codigo, texto}], idea, anterior?, cambios? }.
      Los criterios que Claude puede elegir son SOLO los de la lista; lo que no esté en ella se descarta. */
   var FORMA_SITUACION = '{"titulo": "…", "semanas": número (1 a 12), "sesiones": número total de sesiones (1 a 40), "producto": "producto final", "recursos": "materiales y recursos", ' +
-    '"criterios": ["id exacto de la lista"], "actividades": [{"titulo": "…", "area": "id de área de la lista", "sesiones": número, "criterio": "id exacto de la lista"}]}. ' +
-    'Entre 3 y 8 actividades. Usa solo ids de criterio de la lista, tal cual están escritos.';
+    '"criterios": ["id exacto de la lista"], "actividades": [{"titulo": "…", "area": "id de área de la lista", "sesiones": número, "criterios": ["id exacto de la lista"]}]}. ' +
+    'Entre 3 y 8 actividades. Cada actividad puede evaluar uno o varios criterios (también de otra área), pero al menos uno tiene que ser de su propia área. Usa solo ids de criterio de la lista, tal cual están escritos.';
   function pedirSituacion(c) {
     var m = 'Curso: ' + c.curso + '.º de Primaria\nÁreas de la maestra en este grupo: ' + c.areas.map(function (a) { return a.id + ' (' + a.nombre + ')'; }).join(', ') +
       '\nCriterios de evaluación oficiales que puedes elegir (id: texto literal):\n' + c.criterios.map(function (k) { return '- ' + k.id + ': ' + k.texto; }).join('\n') +
@@ -131,29 +150,38 @@
     if (c.anterior && c.cambios) m += '\n\nPropuesta anterior:\n' + JSON.stringify(c.anterior) + '\n\nCambios que pide la maestra: ' + c.cambios + '\nDevuelve la propuesta completa con esos cambios.';
     return m + '\n\nDevuelve este JSON: ' + FORMA_SITUACION;
   }
-  /* Devuelve la situación y, aparte, los criterios inventados que se han descartado (para avisar a la maestra). */
+  /* Devuelve la situación y, aparte, los criterios inventados descartados (`descartados`) y las actividades quitadas por quedarse sin criterio de su área (`actividadesDescartadas`).
+     Cada actividad trae `criterios` (lista; se acepta también el `criterio` suelto de antes) y `criterio` = el primero. */
   function validarSituacion(o, c) {
-    var validos = {}, areas = {}, descartados = [];
+    var validos = {}, areas = {}, descartados = [], quitadas = [];
     c.criterios.forEach(function (k) { validos[k.id] = k; }); c.areas.forEach(function (a) { areas[a.id] = 1; });
     var limpio = function (id) {
       id = String(id == null ? '' : id).trim();
       if (validos[id]) return id;
-      descartados.push(id); return '';
+      if (id) descartados.push(id);
+      return '';
     };
     var semanas = Math.round(Number(o.semanas)), sesiones = Math.round(Number(o.sesiones));
     if (!(semanas >= 1 && semanas <= 12) || !(sesiones >= 1 && sesiones <= 40)) throw new Error('duración');
     if (!Array.isArray(o.criterios) || !Array.isArray(o.actividades) || !o.actividades.length) throw new Error('actividades');
     var criterios = [];
     o.criterios.forEach(function (id) { id = limpio(id); if (id && criterios.indexOf(id) < 0) criterios.push(id); });
-    var acts = o.actividades.slice(0, 12).map(function (a) {
-      var crit = limpio(a.criterio), n = Math.round(Number(a.sesiones));
-      if (crit && criterios.indexOf(crit) < 0) criterios.push(crit);
-      var area = areas[a.area] ? a.area : (crit ? validos[crit].area : '');
-      return { titulo: cadena(a.titulo, 'título de actividad'), area: area, sesiones: n >= 1 && n <= 40 ? n : 1, criterio: crit };
+    var acts = [];
+    o.actividades.slice(0, 12).forEach(function (a) {
+      var lista = Array.isArray(a.criterios) ? a.criterios : (a.criterio != null ? [a.criterio] : []), buenos = [], n = Math.round(Number(a.sesiones));
+      lista.forEach(function (id) { id = limpio(id); if (id && buenos.indexOf(id) < 0) buenos.push(id); });
+      var titulo = cadena(a.titulo, 'título de actividad');
+      var area = areas[a.area] ? a.area : (buenos.length ? validos[buenos[0]].area : '');
+      /* La actividad tiene que evaluar al menos un criterio de su propia área; si no, se quita entera. */
+      var propios = buenos.filter(function (id) { return validos[id].area === area; });
+      if (!area || !propios.length) { quitadas.push(titulo); return; }
+      buenos = propios.concat(buenos.filter(function (id) { return propios.indexOf(id) < 0; }));
+      buenos.forEach(function (id) { if (criterios.indexOf(id) < 0) criterios.push(id); });
+      acts.push({ titulo: titulo, area: area, sesiones: n >= 1 && n <= 40 ? n : 1, criterios: buenos, criterio: buenos[0] });
     });
-    if (!criterios.length) throw new Error('criterios');
+    if (!acts.length || !criterios.length) throw new Error('criterios');
     return { situacion: { titulo: cadena(o.titulo, 'título'), semanas: semanas, sesiones: sesiones, producto: cadena(o.producto, 'producto'),
-      recursos: typeof o.recursos === 'string' ? o.recursos.trim() : '', criterios: criterios, actividades: acts }, descartados: descartados.filter(Boolean) };
+      recursos: typeof o.recursos === 'string' ? o.recursos.trim() : '', criterios: criterios, actividades: acts }, descartados: descartados, actividadesDescartadas: quitadas };
   }
   async function proponerSituacion(clave, c, nombres, ajustes) {
     vigilarNombres([c.idea, c.cambios, c.anterior ? JSON.stringify(c.anterior) : ''].join(' '), nombres);
