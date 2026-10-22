@@ -2,6 +2,10 @@
 :root { --verde: #1F6B5E; --verde-claro: #E3EFEC; --fondo: #F5F4EF; --tinta: #1d2a27; --suave: #5f6d69; --linea: #d6d4c9; --rojo: #a33a2c; --ambar: #fff4d6; }
 * { box-sizing: border-box; }
 body { margin: 0; font: 15px/1.4 "Figtree", system-ui, Arial, sans-serif; color: var(--tinta); background: var(--fondo); display: flex; flex-direction: column; min-height: 100vh; }
+.franja-apps { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--linea); padding: 2px 16px; font-size: 13px; }
+.franja-apps[hidden] { display: none; }
+.franja-apps a { color: var(--verde); text-decoration: none; font-weight: 600; }
+.franja-apps a:hover { text-decoration: underline; }
 .cabecera { background: var(--verde); color: #fff; display: flex; align-items: center; gap: 16px; padding: 10px 16px; }
 .cabecera h1 { margin: 0; font-size: 20px; }
 .seleccion { flex: 1; background: rgba(255,255,255,.15); border-radius: 6px; padding: 4px 10px; }
@@ -175,7 +179,7 @@ table.listado-seneca { border-collapse: collapse; background: #fff; }
 @media print {
   @page { size: A4 portrait; margin: 1.5cm; }
   body.imprime-hoja, body.imprime-soluciones { background: #fff; display: block; min-height: 0; }
-  body.imprime-hoja .cabecera, body.imprime-hoja .pasos, body.imprime-hoja .pie, body.imprime-hoja .aviso-curso,
+  body.imprime-hoja .franja-apps, body.imprime-soluciones .franja-apps, body.imprime-hoja .cabecera, body.imprime-hoja .pasos, body.imprime-hoja .pie, body.imprime-hoja .aviso-curso,
   body.imprime-soluciones .cabecera, body.imprime-soluciones .pasos, body.imprime-soluciones .pie, body.imprime-soluciones .aviso-curso { display: none; }
   body.imprime-hoja main, body.imprime-soluciones main { padding: 0; }
   body.imprime-hoja #panelHoja > :not(#hojaPapelWrap), body.imprime-soluciones #panelHoja > :not(#hojaSolWrap) { display: none; }
