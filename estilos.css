@@ -188,3 +188,32 @@ table.listado-seneca { border-collapse: collapse; background: #fff; }
   .papel-wrap { overflow: visible; margin: 0; }
   .hoja-papel { border: 0; box-shadow: none; margin: 0; width: auto; }
 }
+
+/* Fila 29: ayuda. Botón «?» de la cabecera, guía de primeros pasos, página de ayuda y avisos «i». */
+.boton-ayuda { font: inherit; font-weight: 700; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; background: transparent; color: #fff; cursor: pointer; flex: none; }
+.boton-ayuda:hover { background: rgba(255,255,255,.2); }
+.capa-ayuda { position: fixed; inset: 0; z-index: 40; background: rgba(29,42,39,.45); display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow: auto; }
+.guia { background: #fff; border-radius: 10px; padding: 16px 20px; width: min(720px, 100%); display: flex; flex-direction: column; gap: 8px; }
+.guia h2 { margin: 0; }
+.guia-pasos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.guia-paso { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: start; border: 1px solid var(--linea); border-radius: 8px; padding: 8px 10px; background: var(--fondo); }
+.guia-paso.hecho { background: var(--verde-claro); border-color: var(--verde); }
+.guia-paso .marca { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--suave); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: var(--suave); }
+.guia-paso.hecho .marca { background: var(--verde); border-color: var(--verde); color: #fff; }
+.guia-texto h3 { margin: 0 0 2px; font-size: 15px; }
+.guia-texto p { margin: 0; overflow-wrap: anywhere; }
+.guia-listo { margin: 0; font-weight: 600; color: var(--verde); }
+.capa-ayuda.pagina { background: var(--fondo); padding: 0; flex-direction: column; align-items: stretch; overflow: hidden; }
+.ayuda-barra { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--verde); color: #fff; }
+.ayuda-barra h1 { margin: 0; font-size: 20px; flex: 1; }
+.ayuda-cuerpo { flex: 1; display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 0; }
+.ayuda-indice { display: flex; flex-direction: column; gap: 2px; padding: 12px; background: #fff; border-right: 1px solid var(--linea); overflow: auto; }
+.ayuda-indice button { font: inherit; text-align: left; border: 0; background: none; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: var(--tinta); }
+.ayuda-indice button.activo { background: var(--verde); color: #fff; }
+.ayuda-texto { padding: 16px 24px; overflow: auto; }
+.ayuda-texto h2 { margin-top: 0; }
+.ayuda-texto p, .ayuda-texto li { max-width: 80ch; }
+@media (max-width: 700px) { .ayuda-cuerpo { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .ayuda-indice { flex-direction: row; flex-wrap: wrap; border-right: 0; border-bottom: 1px solid var(--linea); } }
+.aviso-i { font: inherit; font-size: 11px; font-weight: 700; width: 18px; height: 18px; margin-left: 6px; padding: 0; border-radius: 50%; border: 1px solid var(--verde); background: #fff; color: var(--verde); cursor: pointer; vertical-align: middle; line-height: 1; }
+.burbuja-i { position: absolute; z-index: 60; max-width: 300px; background: #fff; border: 1px solid var(--verde); border-radius: 8px; padding: 8px 10px; box-shadow: 0 2px 8px rgba(0,0,0,.2); font-size: 13px; overflow-wrap: anywhere; }
+@media print { .boton-ayuda, .capa-ayuda, .aviso-i, .burbuja-i { display: none !important; } }

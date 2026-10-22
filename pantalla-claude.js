@@ -23,9 +23,9 @@
       try { await Cl.quitarClave(est.carpeta); await refrescar(); } catch (e) { Dm.decir(aviso, e.message || String(e)); }
     } });
     /* Colegio que sale en la cabecera de la hoja del alumno (es de todos los cursos). */
-    var colegio = h('input', { type: 'text', id: 'colegio', value: (est.configReal || est.config).colegio || g.Hoja.COLEGIO, 'aria-label': 'Colegio' }), avisoColegio = Dm.aviso();
+    var colegio = h('input', { type: 'text', id: 'colegio', value: (est.configReal || est.config).colegio || '', 'aria-label': 'Colegio' }), avisoColegio = Dm.aviso();
     var guardarColegio = h('button', { type: 'button', class: 'boton', id: 'guardarColegio', texto: 'Guardar el colegio', onclick: async function () {
-      try { Dm.decir(avisoColegio, ''); est.config.colegio = colegio.value.trim() || g.Hoja.COLEGIO; await est.carpeta.escribirJSON('config.json', est.config); await refrescar(); } catch (e) { Dm.decir(avisoColegio, e.message || String(e)); }
+      try { Dm.decir(avisoColegio, ''); est.config.colegio = colegio.value.trim(); await est.carpeta.escribirJSON('config.json', est.config); await refrescar(); } catch (e) { Dm.decir(avisoColegio, e.message || String(e)); }
     } });
     /* Correo de Inma para el botón «Soporte» (también es de todos los cursos). */
     var correo = h('input', { type: 'email', id: 'correo', value: (est.configReal || est.config).correo || '', 'aria-label': 'Tu correo' }), avisoCorreo = Dm.aviso();
@@ -47,7 +47,7 @@
       h('label', { class: 'campo' }, ['Nombre del colegio', colegio]), avisoColegio, h('div', { class: 'fila' }, [guardarColegio])
     ]), h('div', { class: 'tarjeta ajustes', id: 'panelAjustes' }, [
       h('h2', { texto: 'Claude (la ayuda con inteligencia artificial)' }),
-      h('p', { id: 'estadoClave', texto: hay ? 'La clave está guardada en tu carpeta. Ya puedes pedir ayuda a Claude.' : 'Todavía no hay clave. La clave te la da Francisco: pégala aquí una sola vez.' }),
+      h('p', { id: 'estadoClave', texto: hay ? 'La clave está guardada en tu carpeta. Ya puedes pedir ayuda a Claude.' : 'Todavía no hay clave. Pégala aquí una sola vez.' }),
       h('p', { class: 'suave', texto: 'Se guarda solo en tu carpeta RÚBRICAS, nunca en la página. A Claude solo se le mandan el criterio, el curso y tus ideas; nunca nombres de alumnos.' }),
       h('label', { class: 'campo' }, ['Clave de Claude', campo]), aviso,
       h('div', { class: 'fila' }, hay ? [guardar, quitar] : [guardar])

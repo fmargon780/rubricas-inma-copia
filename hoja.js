@@ -23,7 +23,7 @@
     { id: 'musica', nombre: 'Pentagrama o línea de ritmo' }, { id: 'libre', nombre: 'Ejercicio libre' }
   ];
   var FIGURAS = [{ id: 'negra', nombre: 'Negra' }, { id: 'corchea', nombre: 'Corchea' }, { id: 'parcorcheas', nombre: 'Par de corcheas' }, { id: 'blanca', nombre: 'Blanca' }, { id: 'silencio', nombre: 'Silencio de negra' }];
-  var COLEGIO = 'CEIP Jorge Guillén';
+  var COLEGIO = ''; /* sin colegio puesto de antemano: lo escribe cada docente en Ajustes */
   var MAX_EJERCICIOS = 30;
 
   function nuevoId() { return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }

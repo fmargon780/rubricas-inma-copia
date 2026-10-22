@@ -9,12 +9,13 @@
 <meta name="theme-color" content="#1F6B5E">
 </head>
 <body>
-<div class="franja-apps" id="franjaApps" hidden><a href="https://mis-actas.vercel.app/apps/">← Apps de Inma</a></div>
+<div class="franja-apps" id="franjaApps" hidden><a href="https://mis-actas.vercel.app/apps/">← Mis apps</a></div>
 <header class="cabecera">
   <h1>Mis rúbricas</h1>
   <label class="curso-sel">Curso <select id="selectorCurso" aria-label="Curso"></select></label>
   <div class="seleccion" id="seleccion">Sin grupo elegido</div>
   <div class="carpeta" id="estadoCarpeta"></div>
+  <button type="button" class="boton-ayuda" id="botonAyuda" aria-label="Ayuda" title="Ayuda">?</button>
 </header>
 <div class="aviso-curso" id="avisoCurso" hidden></div>
 <nav class="pasos" id="pasos" aria-label="Pasos">
@@ -38,6 +39,7 @@
 <script src="criterios.js"></script>
 <script src="pantalla.js"></script>
 <script src="dom.js"></script>
+<script src="ayuda.js"></script>
 <script src="rubrica.js"></script>
 <script src="trabajo.js"></script>
 <script src="situacion.js"></script>
@@ -56,6 +58,7 @@
 <script src="pantalla-hoja.js"></script>
 <script src="pantalla-rubrica.js"></script>
 <script src="pantalla-calificar.js"></script>
+<script src="pantalla-ayuda.js"></script>
 <script src="instalable.js"></script>
 <script src="soporte-cargar.js"></script>
 <script src="arranque.js"></script>

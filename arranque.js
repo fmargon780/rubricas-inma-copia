@@ -12,6 +12,7 @@
     var raiz = window.Carpeta.adaptador(handle);
     $('estadoCarpeta').textContent = 'Carpeta: ' + handle.name;
     var base = await window.Cursos.iniciar(raiz);
+    if (!base.nuevo) base.config = await window.Cursos.fijarColegio(raiz, base.config);
     var est = { raiz: raiz, carpeta: null, config: null, configReal: base.config, cursos: base.cursos, curso: null, editable: true, grupos: [], actividad: null, rubrica: null, cuenta: {}, grupo: null, area: null, paso: 'grupos', criterio: null };
     var refrescar;
     var cargarNombres = async function () {
@@ -51,7 +52,7 @@
     };
     window.SoloConsulta.vigilar($('principal'), function () { return !est.editable; });
     await verCurso(base.config.cursoActual);
-    refrescar = async function () {
+    var pintarPaso = async function () {
       var p = est.paso; Soporte.paso = p; Soporte.correo = (est.configReal || est.config || {}).correo || '';
       if (p === 'grupos') await cargarNombres();
       ['grupos', 'situacion', 'criterio', 'actividad', 'rubrica', 'calificar', 'ajustes'].forEach(function (x) { $('paso' + x.charAt(0).toUpperCase() + x.slice(1)).classList.toggle('activo', p === x); });
@@ -68,6 +69,7 @@
       est.cuenta = await window.Datos.contarAlumnos(est.carpeta, est.grupos);
       window.Pantalla.pintarGrupos(est, refrescar);
     };
+    refrescar = async function () { await pintarPaso(); window.Ayuda.ponerAvisos(est.paso); };
     var ir = function (paso) { return function () { est.paso = paso; refrescar(); }; };
     $('pasoGrupos').onclick = ir('grupos');
     $('pasoSituacion').onclick = ir('situacion');
@@ -78,6 +80,8 @@
     $('pasoAjustes').onclick = ir('ajustes');
     await window.Criterios.cargar();
     await refrescar();
+    window.PantallaAyuda.conectar(est, function (paso) { est.paso = paso; refrescar(); }, elegirYAbrir);
+    try { await window.Ayuda.traspasarCierre(est); await window.PantallaAyuda.guiaSola(); } catch (e) { console.warn('La guía no ha podido salir:', e); }
   }
 
   async function elegirYAbrir() {
@@ -86,13 +90,17 @@
   }
 
   async function empezar() {
+    await window.Ayuda.cargar();
+    window.PantallaAyuda.boton();
+    window.PantallaAyuda.conectar(null, null, elegirYAbrir);
     var h = await window.Carpeta.recordada();
     var texto = 'Elige la carpeta RÚBRICAS de tu Drive (si no existe, créala vacía antes). Aquí guardaré tus grupos, alumnado y calificaciones.';
-    if (!h) { window.Pantalla.pedirCarpeta(texto, elegirYAbrir); return; }
+    if (!h) { window.Pantalla.pedirCarpeta(texto, elegirYAbrir); window.PantallaAyuda.guiaSola(); return; }
     if ((await window.Carpeta.permiso(h)) === 'granted') {
       try { await abrir(h); } catch (e) { window.Pantalla.pedirCarpeta('No he podido abrir la carpeta de siempre. Elígela otra vez.', elegirYAbrir); }
       return;
     }
+    window.PantallaAyuda.guiaSola();
     window.Pantalla.pedirCarpeta('Chrome pide confirmar el permiso sobre tu carpeta ' + h.name + '.', async function () {
       if (await window.Carpeta.pedirPermiso(h)) { try { await abrir(h); } catch (e) { window.Pantalla.error(e.message || String(e)); } }
       else window.Pantalla.pedirCarpeta('Sin permiso no puedo abrir la carpeta. Elígela otra vez.', elegirYAbrir);

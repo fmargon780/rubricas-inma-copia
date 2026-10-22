@@ -6,7 +6,7 @@
     var instalada = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
     return instalada ? 'aplicación instalada' : 'página web';
   };
-  /* El enlace «← Apps de Inma» lleva a una página en internet: en la copia sin internet no se enseña. */
+  /* El enlace «← Mis apps» lleva a una página en internet: en la copia sin internet no se enseña. */
   var franja = document.getElementById('franjaApps');
   if (franja && window.modoApp() !== 'copia sin internet') franja.hidden = false;
   if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;

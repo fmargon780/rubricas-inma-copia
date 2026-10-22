@@ -89,6 +89,8 @@
     return Object.assign(resto, { cursoActual: curso, niveles: config.niveles });
   }
 
+  var COLEGIO_DE_SIEMPRE = 'CEIP Jorge Guillén';
+
   async function borrarVacias(raiz, nombres) {
     for (var i = 0; i < nombres.length; i++) {
       var ents = await raiz.listar(nombres[i]);
@@ -198,7 +200,22 @@
     return nueva;
   }
 
-  var api = { FORMATO: FORMATO, vista: vista, iniciar: iniciar, abrir: abrir, listarCursos: listarCursos, escalaDe: escalaDe, siguiente: siguiente, validarNombre: validarNombre,
+  /* Una carpeta de antes de que existiera el campo «Colegio» y con trabajo guardado se queda con el colegio de siempre, una sola vez,
+     como si lo hubiera escrito ella. Una carpeta sin trabajo, o que ya tiene el campo (aunque esté vacío), no se toca. */
+  async function fijarColegio(raiz, config) {
+    if (typeof config.colegio === 'string') return config;
+    var cursos = await listarCursos(raiz), hay = false;
+    for (var i = 0; i < cursos.length && !hay; i++) {
+      var v = vista(raiz, cursos[i], false), gr = (await v.leerJSON('grupos.json')) || [], cuenta = await D.contarAlumnos(v, gr);
+      hay = (await tieneTrabajo(raiz, cursos[i])) || gr.some(function (x) { return (cuenta[x.id] || 0) > 0; });
+    }
+    if (!hay) return config;
+    config.colegio = COLEGIO_DE_SIEMPRE;
+    await raiz.escribirJSON('config.json', config);
+    return config;
+  }
+
+  var api = { fijarColegio: fijarColegio, COLEGIO_DE_SIEMPRE: COLEGIO_DE_SIEMPRE, FORMATO: FORMATO, vista: vista, iniciar: iniciar, abrir: abrir, listarCursos: listarCursos, escalaDe: escalaDe, siguiente: siguiente, validarNombre: validarNombre,
     empezar: empezar, puedeDeshacer: puedeDeshacer, deshacer: deshacer, SOLO_CONSULTAR: SOLO_CONSULTAR };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Cursos = api;
 })(typeof window !== 'undefined' ? window : globalThis);

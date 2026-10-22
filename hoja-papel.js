@@ -41,7 +41,7 @@
   }
   /* Cabecera: colegio, área y grupo, título, y los huecos de nombre y fecha para rellenar a mano. Sin nombres del alumnado. */
   function cabecera(c) {
-    return div('hoja-cabecera', [h('p', { class: 'colegio', texto: c.colegio }), h('p', { class: 'area-grupo', texto: c.area + ' · ' + c.grupo }), h('h2', { texto: c.titulo }),
+    return div('hoja-cabecera', [c.colegio ? h('p', { class: 'colegio', texto: c.colegio }) : null, h('p', { class: 'area-grupo', texto: c.area + ' · ' + c.grupo }), h('h2', { texto: c.titulo }),
       div('nombre-fecha', [h('span', { texto: 'Nombre: ' }, [h('span', { class: 'rellenar' })]), h('span', { texto: 'Fecha: ' }, [h('span', { class: 'rellenar corto' })])])]);
   }
   /* Los bloques de la hoja (cabecera y ejercicios), para medir cuántas caras ocupa. */
