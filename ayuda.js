@@ -19,8 +19,20 @@
       if (location.protocol === 'file:') { deScript(); return; }
       fetch('ayuda.json').then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
         .then(function (d) { datos = d; listo(d); }, deScript);
-    });
+    }).then(function (d) { return d && enInternet() ? (datos = paraInternet(d)) : d; });
     return cargando;
+  }
+
+  /* En la app de internet no hay clave de Claude: el bloque «internet» de ayuda.json sustituye los textos que hablan de ella. */
+  function enInternet() { return location.protocol === 'https:'; }
+  function paraInternet(d) {
+    var o = d.internet; if (!o) return d;
+    var c = JSON.parse(JSON.stringify(d));
+    c.guia[1] = Object.assign(c.guia[1], o.guiaAjustes);
+    c.pantallas.ajustes.parrafos = o.ajustes;
+    c.extras.faq.preguntas[0] = o.preguntaClave;
+    c.avisos.clave = o.avisoClave;
+    return c;
   }
 
   /* Pone en `padre` el texto, con las direcciones web como enlaces que se abren en otra pestaña. */
@@ -52,7 +64,8 @@
   async function pasosHechos(est) {
     if (!est) return [false, false, false, false];
     var cfg = est.configReal || est.config || {}, hechos = [true];
-    var clave = ''; try { clave = await g.Claude.leerClave(est.carpeta); } catch (e) { /* sin clave legible */ }
+    var clave = g.Claude.enServicio(); /* en internet no hace falta clave: la cuenta de Google ya está */
+    if (!clave) { try { clave = await g.Claude.leerClave(est.carpeta); } catch (e) { /* sin clave legible */ } }
     hechos.push(!!clave && !!String(cfg.colegio || '').trim());
     var actual = await g.Cursos.abrir(est.raiz, cfg, cfg.cursoActual);
     var cuenta = await g.Datos.contarAlumnos(actual.carpeta, actual.grupos);

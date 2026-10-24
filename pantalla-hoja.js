@@ -61,7 +61,7 @@
     var conClave = async function (fn) {
       decir('');
       try {
-        var clave = await Cl.leerClave(est.carpeta);
+        var clave = await Cl.claveDe(est.carpeta);
         if (!clave) throw Object.assign(new Error('Falta la clave de Claude. Pégala una vez en «Ajustes».'), { codigo: 'sin-clave' });
         estado.textContent = 'Claude está pensando…';
         await fn(clave, await PC.nombresAlumnado(est));

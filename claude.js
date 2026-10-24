@@ -93,8 +93,49 @@
     return { filas: filas, faltan: claves.filter(function (k) { return !usados[k]; }) };
   }
 
+  /* La app de internet (https) pide las redacciones al servicio, con la sesión de Google y sin clave; la copia sin internet (file:) y las pruebas en http
+     siguen con la clave de la carpeta. */
+  var AVISAR_DESDE = 5; /* si quedan tantas o menos, se avisa tras redactar */
+  var FRASES_SERVICIO = {
+    sesion: 'Tu sesión ha caducado. Recarga la página y vuelve a entrar.',
+    'no-invitado': 'Tu cuenta ya no está en la lista de invitados.',
+    'sin-saldo': 'Las redacciones de Claude no están disponibles ahora mismo. Vuelve a intentarlo más tarde o escribe tú el texto.',
+    ocupado: 'Claude está muy ocupado ahora mismo. Vuelve a intentarlo en un momento.'
+  };
+  function enServicio() { return !!(g.location && g.location.protocol === 'https:' && g.Servicio); }
+  function fraseTope(tope) { return 'Has usado tus ' + tope + ' redacciones de este mes. El día 1 vuelves a tener ' + tope + '. Mientras tanto, puedes escribir tú el texto.'; }
+  function fraseQuedan(n) { return 'Te quedan ' + n + (n === 1 ? ' redacción' : ' redacciones') + ' este mes.'; }
+  function pulsacionNueva() { return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+  /* Lo que cada botón de Claude pasa como «clave»: en el servicio, una marca con el identificador de esa pulsación (los reintentos y la rúbrica que sigue
+     a una propuesta cuentan como una sola redacción); en la copia, la clave de la carpeta. */
+  async function claveDe(carpeta) { return enServicio() ? { servicio: true, pulsacion: pulsacionNueva() } : leerClave(carpeta); }
+
+  function avisoPasajero(texto) {
+    if (typeof document === 'undefined' || !document.body) return;
+    var viejo = document.getElementById('avisoQuedan'); if (viejo) viejo.remove();
+    var e = document.createElement('div'); e.id = 'avisoQuedan'; e.className = 'aviso ok saldo-claude'; e.setAttribute('role', 'status'); e.textContent = texto;
+    document.body.appendChild(e);
+    setTimeout(function () { if (e.parentNode) e.remove(); }, 9000);
+  }
+
+  async function llamarServicio(marca, mensaje, ajustes) {
+    var r = await g.Servicio.llamar('redactar', { pulsacion: marca.pulsacion, system: SISTEMA, messages: [{ role: 'user', content: mensaje }], max_tokens: (ajustes && ajustes.maxTokens) || 4000 }, ajustes && ajustes.fetch);
+    if (r && r.ok) {
+      var quedan = typeof r.tope === 'number' ? r.tope - r.redacciones : null;
+      g.Servicio.recordarSaldo({ tope: r.tope, redacciones: r.redacciones });
+      if (quedan !== null && quedan <= AVISAR_DESDE) avisoPasajero(fraseQuedan(Math.max(quedan, 0)));
+      return r.texto;
+    }
+    var motivo = r && r.motivo;
+    if (motivo === 'red' || !r) throw ErrorClaude('red', 'No he podido hablar con Claude. Mira si hay internet.');
+    if (motivo === 'tope') throw ErrorClaude('tope', fraseTope(r.tope));
+    if (motivo === 'sesion') g.Servicio.olvidar();
+    throw ErrorClaude(motivo === 'sin-saldo' ? 'saldo' : 'servicio', FRASES_SERVICIO[motivo] || 'Claude no está respondiendo bien ahora mismo. Vuelve a intentarlo en un momento.');
+  }
+
   /* Una llamada a la API. `ajustes.fetch` permite poner una API de mentira en las pruebas. */
   async function llamar(clave, mensaje, ajustes) {
+    if (clave && clave.servicio) return llamarServicio(clave, mensaje, ajustes);
     if (!clave) throw ErrorClaude('sin-clave', 'Falta la clave de Claude. Pégala una vez en «Ajustes».');
     var f = (ajustes && ajustes.fetch) || g.fetch.bind(g), r;
     try {
@@ -188,7 +229,7 @@
     return pedir(clave, pedirSituacion(c), function (o) { return validarSituacion(o, c); }, ajustes);
   }
 
-  var api = { MODELO: MODELO, leerClave: leerClave, guardarClave: guardarClave, quitarClave: quitarClave, vigilarNombres: vigilarNombres,
+  var api = { MODELO: MODELO, enServicio: enServicio, claveDe: claveDe, leerClave: leerClave, guardarClave: guardarClave, quitarClave: quitarClave, vigilarNombres: vigilarNombres,
     proponerActividad: proponerActividad, proponerRubrica: proponerRubrica, proponerSituacion: proponerSituacion,
     pedir: pedir, ErrorClaude: ErrorClaude, trozoJSON: trozoJSON };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else g.Claude = api;

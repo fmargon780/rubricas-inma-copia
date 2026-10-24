@@ -12,9 +12,25 @@
   }
   function nombreArea(est) { var a = g.Criterios.areas().filter(function (x) { return x.id === est.areaCrit; })[0]; return a ? a.nombre : est.areaCrit; }
 
-  /* Pantalla «Ajustes»: la clave se pega una vez y se guarda en la carpeta de Inma. */
+  /* La línea de las redacciones de este mes, a partir de lo que dice el servicio ('yo'). */
+  function fraseRedacciones(r) {
+    if (r.tope === 'sin tope') return 'Redacciones de Claude: sin tope (' + r.redacciones + ' este mes).';
+    return 'Redacciones de Claude este mes: te quedan ' + Math.max(Number(r.tope) - r.redacciones, 0) + ' de ' + r.tope + '.';
+  }
+  async function tarjetaRedacciones() {
+    var texto = h('p', { id: 'redaccionesMes', texto: 'Mirando cuántas redacciones te quedan…' });
+    var r = await g.Servicio.llamar('yo');
+    if (r && r.ok) { g.Servicio.recordarSaldo({ tope: r.tope, redacciones: r.redacciones }); texto.textContent = fraseRedacciones(r); }
+    else texto.textContent = 'No he podido mirar cuántas redacciones te quedan. Inténtalo más tarde.';
+    return h('div', { class: 'tarjeta ajustes', id: 'panelAjustes' }, [
+      h('h2', { texto: 'Claude (la ayuda con inteligencia artificial)' }), texto,
+      h('p', { class: 'suave', texto: 'No hace falta ninguna clave. A Claude solo se le mandan el criterio, el curso y tus ideas; nunca nombres de alumnos.' })
+    ]);
+  }
+
+  /* Pantalla «Ajustes»: en la app de internet, la cuenta de Google y cuántas redacciones quedan; en la copia sin internet, la clave de la carpeta. */
   async function pintarAjustes(est, refrescar) {
-    var hay = !!(await Cl.leerClave(est.carpeta)), aviso = Dm.aviso();
+    var web = Cl.enServicio(), hay = web ? false : !!(await Cl.leerClave(est.carpeta)), aviso = Dm.aviso();
     var campo = h('input', { type: 'password', id: 'claveClaude', autocomplete: 'off', placeholder: 'sk-ant-…' });
     var guardar = h('button', { type: 'button', class: 'boton principal', id: 'guardarClave', texto: 'Guardar la clave', onclick: async function () {
       try { Dm.decir(aviso, ''); await Cl.guardarClave(est.carpeta, campo.value); await refrescar(); } catch (e) { Dm.decir(aviso, e.message || String(e)); }
@@ -39,13 +55,14 @@
     } });
     if (!est.editable) { colegio.disabled = guardarColegio.disabled = correo.disabled = guardarCorreo.disabled = true; }
     var soloActual = est.editable ? [] : [h('p', { class: 'suave', texto: 'Se cambia desde el curso actual.' })];
-    Dm.montar([h('div', { class: 'tarjeta ajustes', id: 'panelCorreo' }, [
+    var cuenta = web ? g.Entrada.tarjeta() : null;
+    Dm.montar([cuenta, h('div', { class: 'tarjeta ajustes', id: 'panelCorreo' }, [
       h('h2', { texto: 'Tu correo' }), h('p', { class: 'suave', texto: 'Si escribes tu correo, el botón "Soporte" no te lo preguntará y te avisará ahí cuando esté resuelto.' }),
       h('label', { class: 'campo' }, ['Tu correo', correo]), avisoCorreo, h('div', { class: 'fila' }, [guardarCorreo])].concat(soloActual)
     ), h('div', { class: 'tarjeta ajustes', id: 'panelColegio' }, [
       h('h2', { texto: 'Colegio' }), h('p', { class: 'suave', texto: 'Sale arriba en la hoja del alumno.' }),
       h('label', { class: 'campo' }, ['Nombre del colegio', colegio]), avisoColegio, h('div', { class: 'fila' }, [guardarColegio])
-    ]), h('div', { class: 'tarjeta ajustes', id: 'panelAjustes' }, [
+    ]), web ? await tarjetaRedacciones() : h('div', { class: 'tarjeta ajustes', id: 'panelAjustes' }, [
       h('h2', { texto: 'Claude (la ayuda con inteligencia artificial)' }),
       h('p', { id: 'estadoClave', texto: hay ? 'La clave está guardada en tu carpeta. Ya puedes pedir ayuda a Claude.' : 'Todavía no hay clave. Pégala aquí una sola vez.' }),
       h('p', { class: 'suave', texto: 'Se guarda solo en tu carpeta RÚBRICAS, nunca en la página. A Claude solo se le mandan el criterio, el curso y tus ideas; nunca nombres de alumnos.' }),
@@ -71,7 +88,7 @@
     var conClave = async function (fn) {
       Dm.decir(aviso, '');
       try {
-        var clave = await Cl.leerClave(est.carpeta);
+        var clave = await Cl.claveDe(est.carpeta);
         if (!clave) throw Object.assign(new Error('Falta la clave de Claude. Pégala una vez en «Ajustes».'), { codigo: 'sin-clave' });
         await fn(clave, await nombresAlumnado(est));
       } catch (e) { ocupado(''); Dm.decir(aviso, e.message || String(e)); if (e.codigo === 'sin-clave' || e.codigo === 'clave') mostrarAjustes(); }

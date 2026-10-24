@@ -44,7 +44,7 @@
     var pedir = async function (anterior, textoCambios) {
       Dm.decir(aviso, ''); Dm.decir(avisoIA, '');
       try {
-        var clave = await Cl.leerClave(est.carpeta);
+        var clave = await Cl.claveDe(est.carpeta);
         if (!clave) throw Object.assign(new Error('Falta la clave de Claude. Pégala una vez en «Ajustes».'), { codigo: 'sin-clave' });
         if (!s.reto.trim()) throw new Error('Escribe el reto en una frase.');
         if (!cat.criterios.length) throw new Error('Este grupo no tiene áreas con criterios oficiales cargados.');

@@ -90,6 +90,8 @@
   }
 
   async function empezar() {
+    /* En la app de internet hay que entrar con Google; con la sesión guardada no se pregunta nada al servicio. */
+    if (!window.Entrada.pedir(empezar)) return;
     await window.Ayuda.cargar();
     window.PantallaAyuda.boton();
     window.PantallaAyuda.conectar(null, null, elegirYAbrir);

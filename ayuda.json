@@ -127,5 +127,17 @@
     "traer": "Copia una actividad o situación de un curso pasado al actual, con su rúbrica y sin notas.",
     "seneca": "Prepara el texto por apartados para copiarlo uno a uno en Séneca. Séneca no admite que una aplicación le meta datos.",
     "claude": "Cuenta tu idea en una o dos frases y Claude propone la actividad y su rúbrica. Es una propuesta: revísala. No escribas nombres de alumnos."
+  },
+  "internet": {
+    "guiaAjustes": { "titulo": "Ajustes", "texto": "No necesitas ninguna clave: Claude funciona con tu cuenta de Google. En Ajustes verás cuántas redacciones te quedan este mes. Escribe también el nombre de tu colegio y, si quieres, tu correo para el botón Soporte." },
+    "ajustes": [
+      "Entras con tu cuenta de Google y te quedas dentro 30 días en este navegador. Arriba verás con qué cuenta has entrado y el botón \"Salir\".",
+      "Tu correo es opcional: si lo escribes, el botón Soporte no te lo preguntará y te avisará ahí cuando esté resuelto.",
+      "El nombre del colegio sale arriba en la hoja del alumno.",
+      "Claude no necesita clave. Cada vez que le pides una propuesta (actividad, rúbrica, situación u hoja) cuenta una redacción. Tienes un número de redacciones al mes, compartido con \"Mis actas\"; Ajustes dice cuántas te quedan.",
+      "A Claude solo se le mandan el criterio, el curso y tus ideas; nunca nombres de alumnos."
+    ],
+    "preguntaClave": { "p": "¿Necesito una clave de Claude?", "r": "No. Entras con tu cuenta de Google y Claude funciona solo. Tienes un número de redacciones al mes: en Ajustes ves cuántas te quedan. Si se acaban, puedes escribir tú el texto y el día 1 vuelves a tener todas." },
+    "avisoClave": "Aquí ves cuántas redacciones de Claude te quedan este mes. No hace falta ninguna clave."
   }
 }
