@@ -1,6 +1,6 @@
 {
   "version": "rúbricas v11",
-  "commit": "5a8547d",
+  "commit": "a6a0244",
   "ficheros": {
     "ABRIR MIS RUBRICAS.html": "9b1039f2b2631b4a13139086e3b067ca0485244db74a7f790da3b6389663098e",
     "actualizar-copia.js": "86cb7d87ff04bee055d85c3ab07100ffb364282c5bee1da3279d2477bac2cb96",
@@ -11,7 +11,7 @@
     "carpeta.js": "b5d76e29ce455c856b8eb7ec7fc664ef252b4a53281c37e6f8247abffeb8ce4f",
     "claude-hoja.js": "90303898d62d69e87d4cea55f184209196e9d15d4a0eaa8ec0698985a60f502d",
     "claude.js": "244532651801ec46a87e95a2c434eeaa3d828efd7dd3b19342902c25a6934ada",
-    "commit.js": "17f06d732580c51285b3802edb3401e1e2b43832b3899f513e53c9d64aa07dc8",
+    "commit.js": "db649a46af46c9db10bce5eb76cb32956d3a93ed005582cd9b491dad4ebbba40",
     "criterios.js": "304b44219cc3e09e6b5bd2b36441db678b991c9f61546c2fc71ce682b99fa1fd",
     "criterios/educacion-artistica-ciclo2.js": "92f17ef4095e12495cfc500fe642ad9e16286f063616e62359a51e4d3d3bf398",
     "criterios/indice.js": "2d0945c007c0c9f66b85ad80b1944316eb30debf66f7c12aa4b34526bcce4dd6",
