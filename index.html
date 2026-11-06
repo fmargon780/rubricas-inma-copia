@@ -3,68 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mis rúbricas</title>
-<link rel="stylesheet" href="estilos.css">
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1F6B5E">
+<title>Rúbricas se ha unido a Mis actas</title>
+<style>
+  :root { --tinta: #1b2430; --suave: #5d6b7a; --azul: #1F6B5E; --ambar: #fff4d6; --ambar-linea: #e0b34a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; font: 16px "Segoe UI", system-ui, Arial, sans-serif; color: var(--tinta); background: linear-gradient(160deg, #1F6B5E 0%, #2a8573 100%); }
+  .caja { background: #fff; border-radius: 14px; padding: 32px; max-width: 480px; width: 100%; box-shadow: 0 4px 12px rgba(20,30,45,.15); }
+  h1 { margin: 0 0 12px; font-size: 22px; color: var(--azul); }
+  p { line-height: 1.5; }
+  .suave { color: var(--suave); }
+  .aviso { background: var(--ambar); border: 1px solid var(--ambar-linea); border-radius: 10px; padding: 12px 16px; margin: 16px 0; }
+  a.boton { display: inline-block; background: var(--azul); color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 8px; }
+</style>
 </head>
 <body>
-<div class="franja-apps" id="franjaApps" hidden><a href="https://mis-actas.vercel.app/apps/">← Mis apps</a></div>
-<div class="franja-nueva" id="franjaNueva" role="status">Rúbricas se ha unido a Mis actas. <a href="https://mis-actas.vercel.app/">Entra por allí</a>: lo que guardes aquí no pasa a la app nueva.</div>
-<header class="cabecera">
-  <h1>Mis rúbricas</h1>
-  <label class="curso-sel">Curso <select id="selectorCurso" aria-label="Curso"></select></label>
-  <div class="seleccion" id="seleccion">Sin grupo elegido</div>
-  <div class="carpeta" id="estadoCarpeta"></div>
-  <button type="button" class="boton-ayuda" id="botonAyuda" aria-label="Ayuda" title="Ayuda">?</button>
-</header>
-<div class="aviso-curso" id="avisoCurso" hidden></div>
-<nav class="pasos" id="pasos" aria-label="Pasos">
-  <button type="button" id="pasoSituacion">1 · Situación</button>
-  <button type="button" id="pasoCriterio">2 · Criterio</button>
-  <button type="button" id="pasoActividad" disabled>3 · Actividad</button>
-  <button type="button" id="pasoRubrica" disabled>4 · Rúbrica</button>
-  <button type="button" id="pasoCalificar" disabled>5 · Calificar</button>
-  <button type="button" class="activo" id="pasoGrupos">Mis grupos</button>
-  <button type="button" id="pasoAjustes">Ajustes</button>
-</nav>
-<main id="principal"></main>
-<footer class="pie"><span id="versionPagina"></span></footer>
-<script src="version.js"></script>
-<script src="commit.js"></script>
-<script src="seneca.js"></script>
-<script src="datos.js"></script>
-<script src="cursos.js"></script>
-<script src="solo-consulta.js"></script>
-<script src="carpeta.js"></script>
-<script src="criterios.js"></script>
-<script src="pantalla.js"></script>
-<script src="dom.js"></script>
-<script src="servicio.js"></script>
-<script src="entrada.js"></script>
-<script src="ayuda.js"></script>
-<script src="rubrica.js"></script>
-<script src="trabajo.js"></script>
-<script src="situacion.js"></script>
-<script src="claude.js"></script>
-<script src="hoja.js"></script>
-<script src="claude-hoja.js"></script>
-<script src="hoja-dibujo.js"></script>
-<script src="traer.js"></script>
-<script src="pantalla-claude.js"></script>
-<script src="pantalla-traer.js"></script>
-<script src="pantalla-situacion.js"></script>
-<script src="pantalla-criterio.js"></script>
-<script src="pantalla-actividad.js"></script>
-<script src="hoja-papel.js"></script>
-<script src="hoja-editor.js"></script>
-<script src="pantalla-hoja.js"></script>
-<script src="pantalla-rubrica.js"></script>
-<script src="pantalla-calificar.js"></script>
-<script src="pantalla-ayuda.js"></script>
-<script src="instalable.js"></script>
-<script src="soporte-cargar.js"></script>
-<script src="arranque.js"></script>
-<script src="actualizar-copia.js"></script>
+<div class="caja">
+  <h1>Rúbricas se ha unido a Mis actas</h1>
+  <p>Esta copia ya no funciona como aplicación. Tus rúbricas, grupos y notas están ahora dentro de <strong>Mis actas</strong>, en la pestaña <strong>Rúbricas</strong>.</p>
+  <p><a class="boton" href="https://mis-actas.vercel.app/">Abrir Mis actas</a></p>
+  <div class="aviso">Si estás en un sitio donde esa dirección no se abre, usa la copia sin internet de Mis actas.</div>
+  <p class="suave">No se ha borrado nada de tu carpeta RÚBRICAS: sigue donde estaba, como copia de seguridad.</p>
+</div>
 </body>
 </html>
