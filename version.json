@@ -1,6 +1,6 @@
 {
-  "version": "rúbricas v11",
-  "commit": "e2cb965",
+  "version": "rúbricas v12",
+  "commit": "b214530",
   "ficheros": {
     "ABRIR MIS RUBRICAS.html": "9b1039f2b2631b4a13139086e3b067ca0485244db74a7f790da3b6389663098e",
     "actualizar-copia.js": "86cb7d87ff04bee055d85c3ab07100ffb364282c5bee1da3279d2477bac2cb96",
@@ -11,7 +11,7 @@
     "carpeta.js": "b5d76e29ce455c856b8eb7ec7fc664ef252b4a53281c37e6f8247abffeb8ce4f",
     "claude-hoja.js": "90303898d62d69e87d4cea55f184209196e9d15d4a0eaa8ec0698985a60f502d",
     "claude.js": "244532651801ec46a87e95a2c434eeaa3d828efd7dd3b19342902c25a6934ada",
-    "commit.js": "1d4adc8ce292e0cde2e5567fe61883602e815803c7d88c8bb5b5a28f22b28f91",
+    "commit.js": "b23bf87438deefb689e7c369191311274de503964a85ec9efc091e6c71b798fd",
     "criterios.js": "304b44219cc3e09e6b5bd2b36441db678b991c9f61546c2fc71ce682b99fa1fd",
     "criterios/educacion-artistica-ciclo2.js": "92f17ef4095e12495cfc500fe642ad9e16286f063616e62359a51e4d3d3bf398",
     "criterios/indice.js": "2d0945c007c0c9f66b85ad80b1944316eb30debf66f7c12aa4b34526bcce4dd6",
@@ -21,14 +21,14 @@
     "datos.js": "f08dd6d52867f61f51cd9657284989795ef210ec61223eb42186d9c6c8c4fe67",
     "dom.js": "94c98bbeed5139200b2e77aa673a085d747a654af04b32e679490e5d62bbaed2",
     "entrada.js": "dcf9b64f9094fc4a5e75bcf51de409561147a1003e2de949ca9fe8a18cef62fc",
-    "estilos.css": "345a08e9c3d662c8f0f3a825ba0e29e998c56716a83966b4cfea19157c44cdd8",
+    "estilos.css": "fcc96c5a9a9e77d7451a4a2271f45bc3fa4ec65ee15bc35ae821e7c627e3fae4",
     "figtree-LICENSE.txt": "ee23e6c84000126692e112ff067b456470493349f993ceaa8b4d3766dd6fad5d",
     "figtree.woff2": "4ba7d3d096695818fe0686be4f1e82c6b05134e18a22260336130335027462dd",
     "hoja-dibujo.js": "7120f948d258e0a2aee39e5e38a510adce0fd1220b64520c6bb818616a5c8146",
     "hoja-editor.js": "41a2ac0b0a96a519f5a55f58b9557cc81976fa4aa8ec781eebad4a316dc496c7",
     "hoja-papel.js": "8bdae77b2ff4ce964983ce630ff28c6f7d25b04230997f00c4f3a621d6f23ab8",
     "hoja.js": "5c4c73a4dab4ee57c63c346886b393ff79042afab9f21af793305a6b2714ffae",
-    "index.html": "f3f41e1198e0a7a7e27ee417f73208116f4dc00c4c38e2e3bf69ae99dafe3378",
+    "index.html": "5bdcdce39de3592ad4d40d753147d4198ba0f7ffca7dbed99b2f196157ab654c",
     "instalable.js": "473ba3d369326674319330f6710083acc64a6b639d954386f284cc6ae9a74e4b",
     "pantalla-actividad.js": "7682c25611736c36b66b6e131b4ae8114d48438a32faabdb4473ee642767d498",
     "pantalla-ayuda.js": "dac20ae5cccf732bacae08e9f294c67b49087b1e488a7d054300eb8641aef095",
@@ -48,6 +48,6 @@
     "soporte-cargar.js": "f45d2419610a482aa8f52272fb4999549f36aa357822912396a2972f63e9951f",
     "trabajo.js": "ddeb4ff5a5479bb64d5e4b14c44fce0b8fa4b3137db8f25815dcf9fb9cb538c1",
     "traer.js": "af9f098007caa0e06f7453b14cac27aeb28a166b9bd847be48068cd934e41788",
-    "version.js": "c335415cf05219a92cc2a8bc98a2366668c503ebe593d94db1c1789dcbc27695"
+    "version.js": "5c3010195f907a2b9d239b3d2c0187a0b0286f85681fe7004cd2417b5c65efc8"
   }
 }
